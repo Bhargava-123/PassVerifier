@@ -1,0 +1,290 @@
+
+import 'package:flutter/material.dart';
+import 'package:buspassapp/api_service.dart';
+
+class PassDetailsScreen extends StatefulWidget {
+  const PassDetailsScreen({super.key});
+
+  @override
+  State<PassDetailsScreen> createState() => _PassDetailsScreenState();
+}
+
+class _PassDetailsScreenState extends State<PassDetailsScreen> {
+
+  late Future<List<dynamic>> _passDetails;
+
+  void getDetails(String bioId) {
+    setState(() {
+      _passDetails = Future.value(PassService(bioId: bioId).getDetails());
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+
+    final arguments = (ModalRoute.of(context)?.settings.arguments ??
+        <String, dynamic>{}) as Map;
+
+    String bioId = arguments['data'].toString();
+    getDetails(bioId); //api call
+
+    return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 37, 55, 161),
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        automaticallyImplyLeading : false,
+        title: const Text(
+          "Pass Detail",
+          style: TextStyle(fontSize: 28),
+        ),
+        backgroundColor: const Color(0xFF00127C),
+      ),
+      body: FutureBuilder(
+          future: _passDetails,
+          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            if (snapshot.hasData) {
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (context, index) {
+                  return ColumnWidget(responseList : snapshot.data[index]);
+                },
+              );
+            } else if (snapshot.hasError) {
+              // If something went wrong
+              return const Center(child: Text('Something went wrong...'));
+            }
+
+            // While fetching, show a loading spinner.
+            return const Center(child: CircularProgressIndicator());
+          }),
+
+    );
+  }
+}
+
+class ColumnWidget extends StatelessWidget {
+  late Map<String,dynamic> responseList;
+  ColumnWidget({super.key,required this.responseList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            height: 30,
+          ),
+          PassDetailsWidget(responseList : responseList),
+          SizedBox(
+            height: 30,
+          ),
+          ValidityDetailsWidget(isValid: responseList['transport'], dept: "Transport"),
+          SizedBox(
+            height: 5,
+          ),
+          ValidityDetailsWidget(isValid: false, dept: "Hostel"),
+          SizedBox(
+            height: 20,
+          ),
+          ScanAgain()
+        ],
+      );
+  }
+}
+          
+
+class PassDetailsWidget extends StatelessWidget {
+  final Map<String,dynamic> responseList;
+  const PassDetailsWidget({super.key,required this.responseList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 480,
+      width: 330,
+      alignment: Alignment.bottomCenter,
+      decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 223, 226, 241),
+          border: Border.all(width: 2, color: Colors.black),
+          borderRadius: BorderRadius.circular(20)),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          DepartmentHeading(responseList : responseList),
+          PassImage(),
+          // const SizedBox(
+          //   height: 10,
+          // ),
+          StudentDetail(responseList : responseList),
+          // const SizedBox(
+          //   height: 30,
+          // ),
+          SemiCircle(responseList : responseList),
+        ],
+      ),
+    );
+  }
+}
+
+class DepartmentHeading extends StatelessWidget {
+  final Map<String, dynamic> responseList;
+  const DepartmentHeading({super.key,required this.responseList});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 40,
+      width: 330,
+      child: Container(
+        decoration: const BoxDecoration(
+            color: Colors.black,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(15),
+              topRight: Radius.circular(15),
+            )),
+        padding: const EdgeInsets.only(top: 5),
+        child: Text(
+          responseList['institution']!,
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Colors.white, fontSize: 25),
+        ),
+      ),
+    );
+  }
+}
+
+class StudentDetail extends StatelessWidget {
+  final Map<String, dynamic> responseList;
+  const StudentDetail({super.key,required this.responseList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Text(
+          responseList['student_name'],
+          style: TextStyle(fontSize: 20),
+        ),
+        Text(
+          responseList['reg_number'],
+          style: TextStyle(fontSize: 20),
+        ),
+        Text(
+          responseList['department'] + responseList['year'],
+          style: TextStyle(fontSize: 20),
+        )
+      ],
+    );
+  }
+}
+
+class PassImage extends StatelessWidget {
+  const PassImage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.asset(
+      'assets/images/passport.png',
+      height: 200,
+      width: 200,
+    );
+  }
+}
+
+class SemiCircle extends StatelessWidget {
+  final Map<String, dynamic> responseList;
+  const SemiCircle({super.key,required this.responseList});
+  final TextStyle textStyle =
+      const TextStyle(fontSize: 18, fontWeight: FontWeight.w500);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 330,
+      height: 125,
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(109, 0, 35, 233).withOpacity(0.1),
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.elliptical(250, 160),
+          topRight: Radius.elliptical(250, 160),
+          bottomLeft: Radius.circular(15),
+          bottomRight: Radius.circular(15),
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(responseList['transport_route'], style: textStyle),
+          Text(
+            'BRINDAVAN NAGAR',
+            style: textStyle,
+          ),
+          Text(
+            "Valid Upto : May 2023",
+            style: textStyle,
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ValidityDetailsWidget extends StatelessWidget {
+  final bool isValid;
+  final String dept;
+  const ValidityDetailsWidget(
+      {required this.isValid, required this.dept, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: isValid ? const Color(0xFF6CBC34) : const Color(0xFFD03044),
+      height: 50,
+      width: MediaQuery.of(context).size.width,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          const SizedBox(
+            width: 30,
+          ),
+          Text(
+            dept,
+            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w900),
+          ),
+          Container(padding: const EdgeInsets.only(right: 5),child: isValid
+              ? Image.asset('assets/images/tick.png')
+              : Image.asset('assets/images/wrong.png'),)
+          
+          
+        ],
+      ),
+    );
+  }
+}
+
+class ScanAgain extends StatelessWidget {
+  const ScanAgain({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+        height: 220,
+        width: MediaQuery.of(context).size.width - 35,
+        child: ElevatedButton(
+          onPressed: () {
+            Navigator.pushNamed(context,'/scanner');
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: const Color(0xFFF8A521),
+            foregroundColor: Colors.black,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          child: const Text(
+            "Scan Again",
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800),
+          ),
+        ));
+  }
+}

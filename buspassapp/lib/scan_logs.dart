@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:calendar_timeline/calendar_timeline.dart';
+import 'package:intl/intl.dart';
 
 class ScanLogs extends StatelessWidget {
   const ScanLogs({super.key});
@@ -18,6 +19,7 @@ class Calendar extends StatefulWidget {
 
 class _CalendarState extends State<Calendar> {
   late DateTime _selectedDate;
+  late String displayDate;
 
   @override
   void initState() {
@@ -26,7 +28,10 @@ class _CalendarState extends State<Calendar> {
   }
 
   void _resetSelectedDate() {
-    _selectedDate = DateTime.now().add(const Duration(days: 2));
+    _selectedDate =
+        DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now()));
+    print(_selectedDate.toString());
+    
   }
 
   @override
@@ -50,9 +55,12 @@ class _CalendarState extends State<Calendar> {
             CalendarTimeline(
               showYears: true,
               initialDate: _selectedDate,
-              firstDate: DateTime.utc(DateTime.now().year,DateTime.january,1),
+              firstDate: DateTime.utc(DateTime.now().year, DateTime.january, 1),
               lastDate: DateTime.now().add(const Duration(days: 365 * 4)),
-              onDateSelected: (date) => setState(() => _selectedDate = date),
+              onDateSelected: (date) => setState(() { 
+              _selectedDate = date;
+              displayDate = DateFormat("d-MM-yyyy").format(_selectedDate);
+              }),
               leftMargin: 20,
               monthColor: Colors.white70,
               dayColor: const Color(0xFFc4e49c),
@@ -63,23 +71,10 @@ class _CalendarState extends State<Calendar> {
               locale: 'en',
             ),
             const SizedBox(height: 20),
-            // Padding(
-            //   padding: const EdgeInsets.only(left: 16),
-            //   child: TextButton(
-            //     style: ButtonStyle(
-            //       backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 248, 166, 33)),
-            //     ),
-            //     child: const Text(
-            //       'RESET',
-            //       style: TextStyle(color: Color(0xFF333A47)),
-            //     ),
-            //     onPressed: () => setState(() => _resetSelectedDate()),
-            //   ),
-            // ),
             const SizedBox(height: 20),
             Center(
               child: Text(
-                'Selected date is $_selectedDate',
+                'Selected date is $displayDate',
                 style: const TextStyle(color: Colors.white),
               ),
             )

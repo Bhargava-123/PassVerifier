@@ -25,7 +25,6 @@ class MyApp extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(title: const Padding(
           padding: EdgeInsets.only(top : 15.0),
-          
           child: Center(
             child: Text("Pass Verifier",style: TextStyle(fontSize: 35),
             ),
@@ -35,7 +34,11 @@ class MyApp extends StatelessWidget {
         body: Column(
         
           children: [
-            Image.asset('assets/images/seclogo.png',height: 170,width: 170,),
+            Padding(
+              padding: const EdgeInsets.all(80.0),
+              child: Image.asset('assets/images/seclogo.png',height: 170,width: 170,),
+            ),
+
             
             const Column(
               mainAxisAlignment: MainAxisAlignment.center,

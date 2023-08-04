@@ -64,6 +64,7 @@ flutter:
      - assets/images/passport.png
      - assets/images/tick.png
      - assets/images/wrong.png
+     - assets/images/seclogo.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:

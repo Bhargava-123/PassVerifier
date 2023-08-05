@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from rest_framework.response import Response
 from django.core.validators import RegexValidator
 from rest_framework.decorators import api_view
@@ -44,6 +45,7 @@ class ScanLog(models.Model):
     scan_date = models.CharField(max_length=100,validators=[
         RegexValidator(r"^\d{1,2}-\d{1,2}-\d{4}$")
     ])
+    student_list = models.ManyToManyField(Pass)
     class Meta:
         verbose_name_plural = "ScanLogs"
     

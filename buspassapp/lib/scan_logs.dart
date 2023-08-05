@@ -1,3 +1,4 @@
+import 'package:buspassapp/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:intl/intl.dart';
@@ -31,7 +32,7 @@ class _CalendarState extends State<Calendar> {
     _selectedDate =
         DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now()));
     print(_selectedDate.toString());
-    displayDate = _selectedDate.toString();
+    displayDate = DateFormat("d-MM-yyyy").format(_selectedDate);
   }
 
   @override
@@ -60,6 +61,7 @@ class _CalendarState extends State<Calendar> {
               onDateSelected: (date) => setState(() {
                 _selectedDate = date;
                 displayDate = DateFormat("d-MM-yyyy").format(_selectedDate);
+                ScanService(date: displayDate).getDetails();
               }),
               leftMargin: 20,
               monthColor: Colors.white70,

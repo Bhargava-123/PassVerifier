@@ -27,6 +27,11 @@ def get_pass_details(request,pk):
     pass_instance = Pass.objects.filter(bio_id=pk)
     serializer = PassSerializer(pass_instance,many=True)
     return Response(serializer.data)
+
+def get_scan_logs(request,date):
+    return Response({'data' : 'get scan logs'})
     
+def post_scan_logs(request,pk):
+    return Response({'data' : 'post scan logs'})
     
 

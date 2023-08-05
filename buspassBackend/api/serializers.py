@@ -5,3 +5,4 @@ class PassSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pass
         fields = "__all__"
+

@@ -1,5 +1,6 @@
 from django.db import models
 from rest_framework.response import Response
+from django.core.validators import RegexValidator
 from rest_framework.decorators import api_view
 import re
 from django.core.validators import RegexValidator,MaxValueValidator,MinValueValidator
@@ -39,5 +40,14 @@ class Pass(models.Model):
     class Meta:
         verbose_name_plural = "Pass"
 
+class ScanLog(models.Model):
+    scan_date = models.CharField(max_length=100,validators=[
+        RegexValidator(r"^\d{1,2}-\d{1,2}-\d{4}$")
+    ])
+    class Meta:
+        verbose_name_plural = "ScanLogs"
+    
+    def __str__(self):
+        return self.scan_date
 
 

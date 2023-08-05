@@ -31,7 +31,7 @@ class _CalendarState extends State<Calendar> {
     _selectedDate =
         DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now()));
     print(_selectedDate.toString());
-    
+    displayDate = _selectedDate.toString();
   }
 
   @override
@@ -57,9 +57,9 @@ class _CalendarState extends State<Calendar> {
               initialDate: _selectedDate,
               firstDate: DateTime.utc(DateTime.now().year, DateTime.january, 1),
               lastDate: DateTime.now().add(const Duration(days: 365 * 4)),
-              onDateSelected: (date) => setState(() { 
-              _selectedDate = date;
-              displayDate = DateFormat("d-MM-yyyy").format(_selectedDate);
+              onDateSelected: (date) => setState(() {
+                _selectedDate = date;
+                displayDate = DateFormat("d-MM-yyyy").format(_selectedDate);
               }),
               leftMargin: 20,
               monthColor: Colors.white70,

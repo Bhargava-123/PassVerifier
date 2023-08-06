@@ -2,6 +2,7 @@ import 'package:buspassapp/pass_details_screen';
 import 'package:flutter/material.dart';
 import 'package:buspassapp/scan_logs.dart';
 import 'package:buspassapp/scanner.dart';
+import 'package:buspassapp/api_service.dart';
 
 void main() {
   runApp(MaterialApp(
@@ -10,7 +11,7 @@ void main() {
     title: "Named Routes Demo",
     initialRoute: '/',
     routes: {
-      '/': (context) => const MyApp(),
+      '/': (context) => MyApp(),
       '/home': (context) => const Home(),
       '/scanLogs': (context) => const ScanLogs(),
       '/scanner': (context) => Scanner(),
@@ -20,86 +21,94 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  MyApp({super.key});
+  TextEditingController usernameController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: const Padding(
-            padding: EdgeInsets.only(top: 15.0),
-            child: Center(
-              child: Text(
-                "Pass Verifier",
-                style: TextStyle(fontSize: 35),
-              ),
+      appBar: AppBar(
+        title: const Padding(
+          padding: EdgeInsets.only(top: 15.0),
+          child: Center(
+            child: Text(
+              "Pass Verifier",
+              style: TextStyle(fontSize: 35),
             ),
           ),
-          backgroundColor: const Color(0xFF01267C),
-          shadowColor: const Color.fromARGB(0, 255, 255, 255),
         ),
         backgroundColor: const Color(0xFF01267C),
-        body: SingleChildScrollView(
-            padding: const EdgeInsets.only(top:10.0),
-            child: Center(
-              child: Column(
+        shadowColor: const Color.fromARGB(0, 255, 255, 255),
+      ),
+      backgroundColor: const Color(0xFF01267C),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(top: 10.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 80.0, bottom: 100.0),
+                child: Image.asset(
+                  'assets/images/seclogo.png',
+                  height: 170,
+                  width: 170,
+                ),
+              ),
+              Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(top: 80.0,bottom: 100.0),
-                    child: Image.asset(
-                      'assets/images/seclogo.png',
-                      height: 170,
-                      width: 170,
-                    ),
+                  CustomTextField(
+                    hintTextValue: "Username",
+                    textEditingController: usernameController,
                   ),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      const CustomTextField(hintTextValue: "Username"),
-                      const SizedBox(
-                        height: 40,
-                        width: 100,
-                      ),
-                      const PasswordTextField(),
-                      const SizedBox(
-                        height: 40,
-                        width: 100,
-                      ),
-                      SizedBox(
-                        child: Container(
-                          width: 120,
-                          height: 50,
-                          decoration: const BoxDecoration(
-                              borderRadius: BorderRadius.all(Radius.circular(20))),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              //log in button api connection logic
-                            },
-                            style: ElevatedButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                            ),
-                            child: const Text(
-                              'LOG IN',
-                              style: TextStyle(fontSize: 16),
-                            ),
+                  const SizedBox(
+                    height: 40,
+                    width: 100,
+                  ),
+                  const PasswordTextField(),
+                  const SizedBox(
+                    height: 40,
+                    width: 100,
+                  ),
+                  SizedBox(
+                    child: Container(
+                      width: 120,
+                      height: 50,
+                      decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(20))),
+                      child: ElevatedButton(
+                        onPressed: () {
+                          //log in button api connection logic
+                          AuthenticateService(
+                              username: username, password: password);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
                         ),
-                      )
-                    ],
-                  ),
+                        child: const Text(
+                          'LOG IN',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ),
-            ),
+            ],
           ),
-        );
+        ),
+      ),
+    );
   }
 }
 
 class PasswordTextField extends StatefulWidget {
-  const PasswordTextField({super.key});
+  final TextEditingController textEditingController;
+  const PasswordTextField({super.key, required this.textEditingController});
 
   @override
   State<PasswordTextField> createState() => _PasswordTextFieldState();
@@ -107,18 +116,19 @@ class PasswordTextField extends StatefulWidget {
 
 class _PasswordTextFieldState extends State<PasswordTextField> {
   bool passwordVisible = false;
-
+  
   @override
   void initState() {
     super.initState();
     passwordVisible = true;
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 400,
       child: TextField(
+        controller: ,
           obscureText: passwordVisible,
           decoration: InputDecoration(
               filled: true,
@@ -126,8 +136,9 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
               fillColor: const Color.fromARGB(255, 211, 211, 211),
               hintText: "Password",
               suffixIcon: IconButton(
-                  icon: Icon(
-                      passwordVisible ? Icons.visibility : Icons.visibility_off),
+                  icon: Icon(passwordVisible
+                      ? Icons.visibility
+                      : Icons.visibility_off),
                   onPressed: () {
                     setState(
                       () {
@@ -141,13 +152,18 @@ class _PasswordTextFieldState extends State<PasswordTextField> {
 
 class CustomTextField extends StatelessWidget {
   final String hintTextValue;
-  const CustomTextField({super.key, required this.hintTextValue});
+  final TextEditingController textEditingController;
+  const CustomTextField(
+      {super.key,
+      required this.hintTextValue,
+      required this.textEditingController});
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 400,
       child: TextField(
+        controller: textEditingController,
         decoration: InputDecoration(
             filled: true,
             border: const OutlineInputBorder(),

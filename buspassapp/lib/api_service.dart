@@ -14,19 +14,37 @@ class PassService {
   }
 }
 
-class ScanService{
+class ScanService {
   String date;
   ScanService({required this.date});
   Future<List<dynamic>> getDetails() async {
     final response = await http
         .get(Uri.parse("http://127.0.0.1:8000/api/get-scan-log/$date/"));
-        try{
-        debugPrint(jsonDecode(response.body)[0]['student_list'].toString());
-        }
-        catch(err){
-          debugPrint("No data found");
-        }
+    try {
+      debugPrint(jsonDecode(response.body)[0]['student_list'].toString());
+    } catch (err) {
+      debugPrint("No data found");
+    }
     return Future.value(jsonDecode(response.body));
   }
+}
 
+class AuthenticateService {
+  String username;
+  String password;
+  AuthenticateService({required this.username, required this.password});
+  getDetails() async {
+    final response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/api/authenticate/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'username': username,
+        'password': password,
+      }),
+    );
+    print(response);
+    return response;
+  }
 }

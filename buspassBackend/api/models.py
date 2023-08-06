@@ -52,4 +52,10 @@ class ScanLog(models.Model):
     def __str__(self):
         return self.scan_date
 
+class User(models.Model):
+    username = models.CharField(max_length=100)
+    password = models.CharField(max_length=20)
+    
+    def __str__(self):
+        return self.username
 

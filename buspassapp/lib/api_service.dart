@@ -33,7 +33,9 @@ class AuthenticateService {
   String username;
   String password;
   AuthenticateService({required this.username, required this.password});
-  getDetails() async {
+  Future<String> getDetails() async {
+    // print(password);
+    // print(username);
     final response = await http.post(
       Uri.parse('http://127.0.0.1:8000/api/authenticate/'),
       headers: <String, String>{
@@ -44,7 +46,7 @@ class AuthenticateService {
         'password': password,
       }),
     );
-    print(response);
-    return response;
+    debugPrint(response.body.runtimeType.toString());
+    return response.body;
   }
 }

@@ -2,6 +2,9 @@ import 'package:buspassapp/pass_details_screen';
 import 'package:flutter/material.dart';
 import 'package:buspassapp/scan_logs.dart';
 import 'package:buspassapp/scanner.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 import 'package:buspassapp/api_service.dart';
 
 void main() {
@@ -22,8 +25,8 @@ void main() {
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
-  TextEditingController usernameController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +45,7 @@ class MyApp extends StatelessWidget {
         shadowColor: const Color.fromARGB(0, 255, 255, 255),
       ),
       backgroundColor: const Color(0xFF01267C),
+      //body of the Login page
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 10.0),
         child: Center(
@@ -59,6 +63,7 @@ class MyApp extends StatelessWidget {
               Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
+                  //username TextField
                   CustomTextField(
                     hintTextValue: "Username",
                     textEditingController: usernameController,
@@ -67,7 +72,10 @@ class MyApp extends StatelessWidget {
                     height: 40,
                     width: 100,
                   ),
-                  const PasswordTextField(),
+                  //password TextField
+                  PasswordTextField(
+                    textEditingController: passwordController,
+                  ),
                   const SizedBox(
                     height: 40,
                     width: 100,
@@ -79,12 +87,34 @@ class MyApp extends StatelessWidget {
                       decoration: const BoxDecoration(
                           borderRadius: BorderRadius.all(Radius.circular(20))),
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           //log in button api connection logic
-                          AuthenticateService(
-                              username: username, password: password);
+                          // print(usernameController.text);
+                          // print(passwordController.text);
+                          String responseResult = await AuthenticateService(
+                                  username: usernameController.text,
+                                  password: passwordController.text)
+                              .getDetails();
+                          // print(json.decode(responseResult).toS;
+                          // print(json.decode(responseResult.toString()));
+                          String isPermitted =
+                              json.decode(responseResult)['response'];
+
+                          if (isPermitted == 'true' && context.mounted) {
+                            Navigator.pushNamed(context, '/home');
+                          } else {
+                            print('not permitted');
+                            const snackBar = SnackBar(
+                              content: Text("Wrong Password or Username"),
+                            );
+                            ScaffoldMessenger.of(context)
+                                .showSnackBar(snackBar);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(255, 248, 166, 3),
+                              foregroundColor: Color.fromARGB(255, 0, 0, 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),
@@ -116,19 +146,19 @@ class PasswordTextField extends StatefulWidget {
 
 class _PasswordTextFieldState extends State<PasswordTextField> {
   bool passwordVisible = false;
-  
+
   @override
   void initState() {
     super.initState();
     passwordVisible = true;
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return SizedBox(
       width: 400,
       child: TextField(
-        controller: ,
+          controller: widget.textEditingController,
           obscureText: passwordVisible,
           decoration: InputDecoration(
               filled: true,
@@ -181,6 +211,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          automaticallyImplyLeading: false,
           title: const Padding(
             padding: EdgeInsets.only(top: 15.0),
             child: Center(

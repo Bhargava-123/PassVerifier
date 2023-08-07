@@ -21,13 +21,22 @@ from django.core.validators import RegexValidator,MaxValueValidator,MinValueVali
 
 
 class Pass(models.Model):
-    institution = models.CharField(max_length=10)
-    student_name = models.CharField(max_length=50)
-    reg_number = models.CharField(max_length=20)
-    department = models.CharField(max_length=20)
-    year = models.CharField(max_length=20)
-    academic_year = models.CharField(max_length=10)
-    valid_upto = models.DateField(auto_now=False,auto_now_add=False)
+    dept_choices = [
+        ('CSE','CSE'),
+        ('IT','IT'),
+        ('ECE','ECE')
+    ]
+    year_choices = [
+        ('I','I'),
+        ('II','II'),
+        ('III','III'),
+        ('IV,','IV'),
+    ]
+    institution_choices = [
+        ('SIMATS','SIMATS'),
+        ('SEC','SEC'),
+        ('AHS','AHS')
+    ]
     bio_id = models.IntegerField(
         primary_key=True,
         validators=[
@@ -35,8 +44,17 @@ class Pass(models.Model):
             MaxValueValidator(40000)
         ]
     )
-    transport = models.BooleanField()
+    student_name = models.CharField(max_length=50)
+    reg_number = models.CharField(max_length=20)
+    department = models.CharField(max_length=20,choices=dept_choices)
+    year = models.CharField(max_length=20,choices=year_choices)
+    image_url = models.URLField(max_length=200,blank=True)
+    institution = models.CharField(max_length=10,choices=institution_choices)
+    valid_upto = models.DateField(auto_now=False,auto_now_add=False)
+    isTransport = models.BooleanField()
     transport_route = models.CharField(default='NULL',max_length=20,blank=True)
+    isHostel = models.BooleanField()
+    hostel_room = models.CharField(default='NULL',max_length=20,blank=True)
 
     class Meta:
         verbose_name_plural = "Pass"

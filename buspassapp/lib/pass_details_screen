@@ -46,6 +46,7 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
+                  print(snapshot.data[index]['isTransport'].toString());
                   return ColumnWidget(responseList : snapshot.data[index]);
                 },
               );
@@ -78,11 +79,11 @@ class ColumnWidget extends StatelessWidget {
           SizedBox(
             height: 30,
           ),
-          ValidityDetailsWidget(isValid: responseList['transport'], dept: "Transport"),
+          ValidityDetailsWidget(isValid: responseList['isTransport'], dept: "Transport"),
           SizedBox(
             height: 5,
           ),
-          ValidityDetailsWidget(isValid: false, dept: "Hostel"),
+          ValidityDetailsWidget(isValid: responseList['isHostel'], dept: "Hostel"),
           SizedBox(
             height: 20,
           ),

@@ -39,23 +39,38 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
         ),
         backgroundColor: const Color(0xFF00127C),
       ),
-      body: FutureBuilder(
+      body:  FutureBuilder(
           future: _passDetails,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.data[0]['Error'] == "False")
+            {
+              return Center(
+                child : Column(
+                  mainAxisAlignment : MainAxisAlignment.end,
+                  children : <Widget>[
+                    
+                    Text("Invalid Scan",style:TextStyle(fontSize : 25, color : Color(0xFFFFFFFF))),
+                    SizedBox(width: 100, height: 550),
+                    ScanAgain(),
+                    SizedBox(height:40),
+                  ]
+                ),
+              );
+            }
+            else if (snapshot.hasData) {
+              //the id is not found
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  print(snapshot.data[index]['isTransport'].toString());
+                  // print(snapshot.data[index]['isTransport'].toString());
                   return ColumnWidget(responseList : snapshot.data[index]);
                 },
               );
             } else if (snapshot.hasError) {
               // If something went wrong
+              // print("some error occured");
               return const Center(child: Text('Something went wrong...'));
             }
-
-            // While fetching, show a loading spinner.
             return const Center(child: CircularProgressIndicator());
           }),
 
@@ -79,11 +94,11 @@ class ColumnWidget extends StatelessWidget {
           SizedBox(
             height: 30,
           ),
-          ValidityDetailsWidget(isValid: responseList['isTransport'], dept: "Transport"),
+          ValidityDetailsWidget(isValid: responseList['isTransport'], dept: "Transport",responseList : responseList),
           SizedBox(
             height: 5,
           ),
-          ValidityDetailsWidget(isValid: responseList['isHostel'], dept: "Hostel"),
+          ValidityDetailsWidget(isValid: responseList['isHostel'], dept: "Hostel",responseList : responseList),
           SizedBox(
             height: 20,
           ),
@@ -112,7 +127,7 @@ class PassDetailsWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           DepartmentHeading(responseList : responseList),
-          PassImage(),
+          PassImage(responseList : responseList),
           // const SizedBox(
           //   height: 10,
           // ),
@@ -171,7 +186,7 @@ class StudentDetail extends StatelessWidget {
           style: TextStyle(fontSize: 20),
         ),
         Text(
-          responseList['department'] + responseList['year'],
+          responseList['department'] +" " +responseList['year'],
           style: TextStyle(fontSize: 20),
         )
       ],
@@ -180,12 +195,13 @@ class StudentDetail extends StatelessWidget {
 }
 
 class PassImage extends StatelessWidget {
-  const PassImage({super.key});
+  final Map<String,dynamic> responseList;
+  const PassImage({super.key, required this.responseList});
 
   @override
   Widget build(BuildContext context) {
-    return Image.asset(
-      'assets/images/passport.png',
+    return Image.network(
+      responseList['image_url'],
       height: 200,
       width: 200,
     );
@@ -215,13 +231,13 @@ class SemiCircle extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text(responseList['transport_route'], style: textStyle),
+          Text("", style: textStyle),
           Text(
-            'BRINDAVAN NAGAR',
+            '',
             style: textStyle,
           ),
           Text(
-            "Valid Upto : May 2023",
+            "",
             style: textStyle,
           )
         ],
@@ -233,8 +249,9 @@ class SemiCircle extends StatelessWidget {
 class ValidityDetailsWidget extends StatelessWidget {
   final bool isValid;
   final String dept;
+  final Map<String,dynamic> responseList;
   const ValidityDetailsWidget(
-      {required this.isValid, required this.dept, super.key});
+      {required this.isValid, required this.dept, super.key,required this.responseList});
 
   @override
   Widget build(BuildContext context) {
@@ -248,10 +265,17 @@ class ValidityDetailsWidget extends StatelessWidget {
           const SizedBox(
             width: 30,
           ),
-          Text(
+          Column(
+            children : [Text(
             dept,
-            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w900),
-          ),
+            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w900)),
+            Text(
+              dept == "Transport" ? 
+              (isValid ?  "Valid Upto : " + responseList['valid_upto_bus'] : ""):
+              (isValid ? "Valid Upto : " + responseList['valid_upto_hostel'] : ""),
+            )]
+          )
+          ,
           Container(padding: const EdgeInsets.only(right: 5),child: isValid
               ? Image.asset('assets/images/tick.png')
               : Image.asset('assets/images/wrong.png'),)

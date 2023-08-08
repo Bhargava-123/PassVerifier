@@ -9,7 +9,13 @@ class PassService {
   Future<List<dynamic>> getDetails() async {
     final response = await http
         .get(Uri.parse("http://127.0.0.1:8000/api/get-pass-details/$bioId/"));
-    debugPrint(response.body);
+    // debugPrint(response.body.runtimeType.toString());
+    if (response.body == '[]') {
+      print("here comes the error!!!!!!!!!!!!!!!!!!!!!");
+      return Future.value([
+        {'Error': "False"}
+      ]);
+    }
     return Future.value(jsonDecode(response.body));
   }
 }

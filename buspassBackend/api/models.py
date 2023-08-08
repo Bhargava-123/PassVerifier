@@ -50,7 +50,8 @@ class Pass(models.Model):
     year = models.CharField(max_length=20,choices=year_choices)
     image_url = models.URLField(max_length=200,blank=True)
     institution = models.CharField(max_length=10,choices=institution_choices)
-    valid_upto = models.DateField(auto_now=False,auto_now_add=False)
+    valid_upto_hostel = models.DateField(auto_now=False,auto_now_add=False,blank=True,null=True)
+    valid_upto_bus = models.DateField(auto_now=False,auto_now_add=False,blank=True,null=True)
     isTransport = models.BooleanField()
     transport_route = models.CharField(default='NULL',max_length=20,blank=True)
     isHostel = models.BooleanField()
@@ -58,6 +59,9 @@ class Pass(models.Model):
 
     class Meta:
         verbose_name_plural = "Pass"
+    
+    def __str__(self):
+        return str(self.bio_id)
 
 class ScanLog(models.Model):
     scan_date = models.CharField(max_length=100,validators=[

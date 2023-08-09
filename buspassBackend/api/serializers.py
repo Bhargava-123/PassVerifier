@@ -9,7 +9,7 @@ class PassSerializer(serializers.ModelSerializer):
 class ScanLogSerializer(serializers.ModelSerializer):
     class Meta:
         model = ScanLog
-        fields = "__all__"
+        fields = ['scan_date','student_list']
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

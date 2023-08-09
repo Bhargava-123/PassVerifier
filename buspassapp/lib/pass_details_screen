@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:buspassapp/api_service.dart';
+import 'package:intl/intl.dart';
 
 class PassDetailsScreen extends StatefulWidget {
   const PassDetailsScreen({super.key});
@@ -27,6 +28,11 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
 
     String bioId = arguments['data'].toString();
     getDetails(bioId); //api call
+    final now = new DateTime.now();
+    String todaysDate = DateFormat("d-MM-yyyy").format(now);
+    debugPrint("Todays Date : $todaysDate");
+    //api call to post the data to scan log
+    PostScanLogService(date: todaysDate,bioId : bioId).postScanLog();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 37, 55, 161),

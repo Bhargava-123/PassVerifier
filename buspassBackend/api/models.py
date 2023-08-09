@@ -59,15 +59,17 @@ class Pass(models.Model):
 
     class Meta:
         verbose_name_plural = "Pass"
+        
     
     def __str__(self):
         return str(self.bio_id)
 
 class ScanLog(models.Model):
+    id = models.AutoField(primary_key=True)
     scan_date = models.CharField(max_length=100,validators=[
         RegexValidator(r"^\d{1,2}-\d{1,2}-\d{4}$")
     ])
-    student_list = models.ManyToManyField(Pass)
+    student_list = models.ManyToManyField(Pass,blank=True,null=True)
     class Meta:
         verbose_name_plural = "ScanLogs"
     

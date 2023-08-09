@@ -29,13 +29,41 @@ def get_pass_details(request,pk):
 @api_view(["GET"])
 def get_scan_logs(request,date):
     scanLog_instance = ScanLog.objects.filter(scan_date=date)
-    print(scanLog_instance.all())
+    # print(scanLog_instance.all())
     serializer = ScanLogSerializer(scanLog_instance,many=True)
     return Response(serializer.data)
-    
-def post_scan_logs(request,pk):
-    return Response({'data' : 'post scan logs'})
 
+@api_view(["POST","GET"])
+def post_scan_logs(request,date):
+    all_instance = ScanLog.objects.last()
+    prev_id = all_instance.id
+    print(request.data)
+    student_list = []
+    student_list.append(request.data['bioId'])
+    print(student_list)
+    scanLog_instance = ScanLog(scan_date=date)
+    scanLog_instance.id = prev_id + 1
+    scanLog_instance.student_list.set(student_list)
+    
+
+    serializer = ScanLogSerializer(scanLog_instance,many=True)
+    print(serializer.data)
+    
+    # scanLog_instance = ScanLog.objects.filter(scan_date="21-08-2023")
+    # serializer = ScanLogSerializer(scanLog_instance,many=True)
+    # print("hello")
+    # student_list = serializer.data[0]['student_list']
+    # if request.data['bioId'] not in student_list:
+    #     student_list.append(request.data['bioId'])
+    #     scanLog_instance_new = ScanLog(scan_date=date,id=1)
+    #     scanLog_instance_new.student_list.set(student_list)
+    #     serializer = ScanLogSerializer(scanLog_instance)
+    #     print(serializer.data)
+    #     # new_serializer = ScanLogSerializer(data = serializer.data)
+    #     # if new_serializer.is_valid():
+    #     #     new_serializer.save()
+    return Response({'date' : date})
+        
 @api_view(['POST'])
 def authenticate_user(request):
     response_data = {}

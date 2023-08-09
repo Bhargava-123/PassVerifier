@@ -28,9 +28,7 @@ class ScanService {
     try {
       // debugPrint(jsonDecode(response.body)[0]['student_list'].toString());
     } catch (err) {
-      return Future.value([
-        
-      ]);
+      return Future.value([]);
     }
     return Future.value(jsonDecode(response.body));
   }
@@ -53,7 +51,27 @@ class AuthenticateService {
         'password': password,
       }),
     );
+    
     debugPrint(response.body.runtimeType.toString());
+    return response.body;
+  }
+}
+
+class PostScanLogService {
+  String date;
+  String bioId;
+  PostScanLogService({required this.date,required this.bioId});
+  Future<String> postScanLog() async {
+    var response = await http.post(
+      Uri.parse('http://127.0.0.1:8000/api/post-scan-log/$date/'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        'bioId':  bioId,
+      }),
+    );
+    print(response.body.toString());
     return response.body;
   }
 }

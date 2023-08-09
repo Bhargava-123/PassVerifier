@@ -11,7 +11,6 @@ class PassService {
         .get(Uri.parse("http://127.0.0.1:8000/api/get-pass-details/$bioId/"));
     // debugPrint(response.body.runtimeType.toString());
     if (response.body == '[]') {
-      print("here comes the error!!!!!!!!!!!!!!!!!!!!!");
       return Future.value([
         {'Error': "False"}
       ]);
@@ -27,9 +26,11 @@ class ScanService {
     final response = await http
         .get(Uri.parse("http://127.0.0.1:8000/api/get-scan-log/$date/"));
     try {
-      debugPrint(jsonDecode(response.body)[0]['student_list'].toString());
+      // debugPrint(jsonDecode(response.body)[0]['student_list'].toString());
     } catch (err) {
-      debugPrint("No data found");
+      return Future.value([
+        
+      ]);
     }
     return Future.value(jsonDecode(response.body));
   }

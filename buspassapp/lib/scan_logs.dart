@@ -2,6 +2,8 @@ import 'package:buspassapp/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class ScanLogs extends StatelessWidget {
   const ScanLogs({super.key});
@@ -21,17 +23,24 @@ class Calendar extends StatefulWidget {
 class _CalendarState extends State<Calendar> {
   late DateTime _selectedDate;
   late String displayDate;
-
+  late Future<List<dynamic>> _scanDetails;
+  dynamic _isLogAvailable;
   @override
   void initState() {
     super.initState();
     _resetSelectedDate();
   }
 
+  void setLogAvaiable(bool valuetobeset) {
+    setState(() {
+      _isLogAvailable = valuetobeset;
+    });
+  }
+
   void _resetSelectedDate() {
     _selectedDate =
         DateTime.parse(DateFormat('yyyy-MM-dd').format(DateTime.now()));
-    print(_selectedDate.toString());
+    // print(_selectedDate.toString());
     displayDate = DateFormat("d-MM-yyyy").format(_selectedDate);
   }
 
@@ -58,10 +67,23 @@ class _CalendarState extends State<Calendar> {
               initialDate: _selectedDate,
               firstDate: DateTime.utc(DateTime.now().year, DateTime.january, 1),
               lastDate: DateTime.now().add(const Duration(days: 365 * 4)),
+              //on clicking a specific date
               onDateSelected: (date) => setState(() {
                 _selectedDate = date;
                 displayDate = DateFormat("d-MM-yyyy").format(_selectedDate);
-                ScanService(date: displayDate).getDetails();
+                //api calling to get scan logs
+                _scanDetails =
+                    Future.value(ScanService(date: displayDate).getDetails());
+                //to check if the log is available
+
+                _scanDetails.then((value) {
+                  //calling setState hook in after fetch the value
+                  if (value.isEmpty) {
+                    setLogAvaiable(false);
+                  } else {
+                    setLogAvaiable(true);
+                  }
+                });
               }),
               leftMargin: 20,
               monthColor: Colors.white70,
@@ -76,7 +98,9 @@ class _CalendarState extends State<Calendar> {
             const SizedBox(height: 20),
             Center(
               child: Text(
-                'Selected date is $displayDate',
+                _isLogAvailable == true
+                    ? 'Selected date is $displayDate'
+                    : 'Scan Log Not Found',
                 style: const TextStyle(color: Colors.white),
               ),
             )

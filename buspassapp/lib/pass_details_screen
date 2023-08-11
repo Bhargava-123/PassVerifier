@@ -43,9 +43,12 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         automaticallyImplyLeading : false,
-        title: const Text(
-          "Pass Detail",
-          style: TextStyle(fontSize: 28),
+        title: InkWell(
+          onTap: (){
+            Navigator.pushNamed(context,"/home");
+            print("went home");
+          },
+          child: const Text('Pass Details')
         ),
         backgroundColor: const Color(0xFF00127C),
       ),

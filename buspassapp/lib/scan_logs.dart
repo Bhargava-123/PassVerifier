@@ -72,8 +72,8 @@ class _CalendarState extends State<Calendar> {
                 _selectedDate = date;
                 displayDate = DateFormat("d-MM-yyyy").format(_selectedDate);
                 //api calling to get scan logs
-                _scanDetails =
-                    Future.value(ScanService(date: displayDate).getDetails());
+                _scanDetails = Future.value(
+                    getScanLogService(date: displayDate).getDetails());
                 //to check if the log is available
                 _scanDetails.then((value) {
                   //calling setState hook in after fetch the value
@@ -93,19 +93,80 @@ class _CalendarState extends State<Calendar> {
               dotsColor: const Color(0xFF333A47),
               locale: 'en',
             ),
-            const SizedBox(height: 20),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
+            // const SizedBox(height: 20),
             Center(
-              child: Text(
-                _isLogAvailable == true
-                    ? 'Selected date is $displayDate'
-                    : 'Scan Log Not Found',
-                style: const TextStyle(color: Colors.white),
-              ),
-            )
+              child: _isLogAvailable == true
+                  ? ScanLogListWidget(logList: _scanDetails)
+                  : const Text(
+                      'Scan Log Not Found',
+                      style:
+                          TextStyle(color: Color.fromARGB(255, 255, 255, 255)),
+                    ),
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+class ScanLogListWidget extends StatelessWidget {
+  final Future<List<dynamic>> logList;
+  const ScanLogListWidget({super.key, required this.logList});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+        future: logList,
+        builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+          if (snapshot.hasData) {
+            return SingleChildScrollView(
+                child: Column(
+              children: <Widget>[
+                SizedBox(
+                  height: MediaQuery.of(context).size.height - 240.375,
+                  child: ListView.builder(
+                    scrollDirection: Axis.vertical,
+                    itemCount: snapshot.data!.length,
+                    itemBuilder: (context, index) {
+                      var data = snapshot.data[index];
+                      return LogRowWidget(
+                          bioId: data['bio_id'].toString(),
+                          scanDate: data['scan_date'],
+                          scanTime: data['scan_time']);
+                    },
+                  ),
+                ),
+              ],
+            ));
+          }
+          return const Center(child: CircularProgressIndicator());
+        });
+  }
+}
+
+class LogRowWidget extends StatelessWidget {
+  final String bioId;
+  final String scanDate;
+  final String scanTime;
+  final TextStyle white = const TextStyle(color: Color.fromARGB(255, 254, 254, 254),fontSize: 25);
+  const LogRowWidget(
+      {super.key,
+      required this.bioId,
+      required this.scanDate,
+      required this.scanTime});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(5.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+        Text(bioId, style: white),
+        Text(scanTime,style: white,),
+      ]),
     );
   }
 }

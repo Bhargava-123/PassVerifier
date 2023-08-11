@@ -21,13 +21,13 @@ class PassService {
   }
 }
 
-class ScanService {
+class getScanLogService {
   String date;
-  ScanService({required this.date});
+  getScanLogService({required this.date});
   Future<List<dynamic>> getDetails() async {
     final response = await http.get(Uri.parse("$baseUrl/get-scan-log/$date/"));
     try {
-      // debugPrint(jsonDecode(response.body)[0]['student_list'].toString());
+      debugPrint(jsonDecode(response.body).toString());
     } catch (err) {
       return Future.value([]);
     }

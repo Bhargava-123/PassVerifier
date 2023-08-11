@@ -65,11 +65,14 @@ class Pass(models.Model):
         return str(self.bio_id)
 
 class ScanLog(models.Model):
-    id = models.AutoField(primary_key=True)
+    
     scan_date = models.CharField(max_length=100,validators=[
         RegexValidator(r"^\d{1,2}-\d{1,2}-\d{4}$")
-    ])
-    student_list = models.ManyToManyField(Pass,blank=True,null=True)
+    ],null=True,blank=True)
+    scan_time = models.CharField(max_length=8,validators=[
+        RegexValidator(r"^\d{2}:\d{2}:\d{2}$")
+    ],null=True,blank=True)
+    bio_id = models.ForeignKey(Pass,on_delete=models.CASCADE,default=0)
     class Meta:
         verbose_name_plural = "ScanLogs"
     

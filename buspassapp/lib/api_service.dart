@@ -1,14 +1,16 @@
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
+String baseUrl = "http://127.0.0.1:8000/api";
 
 class PassService {
   String bioId;
   PassService({required this.bioId});
   Future<List<dynamic>> getDetails() async {
-    final response = await http
-        .get(Uri.parse("http://127.0.0.1:8000/api/get-pass-details/$bioId/"));
+    final response =
+        await http.get(Uri.parse("$baseUrl/get-pass-details/$bioId/"));
     // debugPrint(response.body.runtimeType.toString());
     if (response.body == '[]') {
       return Future.value([
@@ -23,8 +25,7 @@ class ScanService {
   String date;
   ScanService({required this.date});
   Future<List<dynamic>> getDetails() async {
-    final response = await http
-        .get(Uri.parse("http://127.0.0.1:8000/api/get-scan-log/$date/"));
+    final response = await http.get(Uri.parse("$baseUrl/get-scan-log/$date/"));
     try {
       // debugPrint(jsonDecode(response.body)[0]['student_list'].toString());
     } catch (err) {
@@ -42,7 +43,7 @@ class AuthenticateService {
     // print(password);
     // print(username);
     final response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/authenticate/'),
+      Uri.parse('$baseUrl/authenticate/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -51,27 +52,30 @@ class AuthenticateService {
         'password': password,
       }),
     );
-    
+
     debugPrint(response.body.runtimeType.toString());
     return response.body;
   }
 }
 
 class PostScanLogService {
-  String date;
+  String date = DateFormat("d-MM-yyyy").format(DateTime.now());
+  String time = DateFormat("HH:mm:ss").format(DateTime.now());
   String bioId;
-  PostScanLogService({required this.date,required this.bioId});
+  PostScanLogService({required this.bioId});
   Future<String> postScanLog() async {
     var response = await http.post(
-      Uri.parse('http://127.0.0.1:8000/api/post-scan-log/$date/'),
+      Uri.parse('$baseUrl/post-scan-log/$date/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: jsonEncode(<String, String>{
-        'bioId':  bioId,
+      body: jsonEncode({
+        "scan_date": date,
+        "scan_time": time,
+        "bio_id": bioId,
       }),
     );
-    print(response.body.toString());
+    // print(response.body.toString());
     return response.body;
   }
 }

@@ -27,12 +27,16 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
         <String, dynamic>{}) as Map;
 
     String bioId = arguments['data'].toString();
-    getDetails(bioId); //api call
-    final now = new DateTime.now();
-    String todaysDate = DateFormat("d-MM-yyyy").format(now);
-    debugPrint("Todays Date : $todaysDate");
-    //api call to post the data to scan log
-    PostScanLogService(date: todaysDate,bioId : bioId).postScanLog();
+    //API call to get the details of the bioID scanned
+    getDetails(bioId);
+    
+    // final now = new DateTime.now();
+    // String todaysDate = DateFormat("d-MM-yyyy").format(now);
+    // String chummaDate = DateFormat("d-MM-yyy HH:mm:ss").format(now);
+    // DateTime dateObject = DateTime.parse(chummaDate);
+    // print("$chummaDate");
+    //API call to post the data to scanLog
+    PostScanLogService(bioId : bioId).postScanLog();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 37, 55, 161),
@@ -48,6 +52,7 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
       body:  FutureBuilder(
           future: _passDetails,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            //The QR Code is invalid
             if (snapshot.data[0]['Error'] == "False")
             {
               return Center(
@@ -63,6 +68,7 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
                 ),
               );
             }
+            //The Qr Code is Valid
             else if (snapshot.hasData) {
               //the id is not found
               return ListView.builder(

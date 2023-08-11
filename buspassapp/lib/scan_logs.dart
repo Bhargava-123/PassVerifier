@@ -75,7 +75,6 @@ class _CalendarState extends State<Calendar> {
                 _scanDetails =
                     Future.value(ScanService(date: displayDate).getDetails());
                 //to check if the log is available
-
                 _scanDetails.then((value) {
                   //calling setState hook in after fetch the value
                   if (value.isEmpty) {

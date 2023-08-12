@@ -52,9 +52,9 @@ class Pass(models.Model):
     institution = models.CharField(max_length=10,choices=institution_choices)
     valid_upto_hostel = models.DateField(auto_now=False,auto_now_add=False,blank=True,null=True)
     valid_upto_bus = models.DateField(auto_now=False,auto_now_add=False,blank=True,null=True)
-    isTransport = models.BooleanField()
+    isTransport = models.BooleanField(default=False)
     transport_route = models.CharField(default='NULL',max_length=20,blank=True)
-    isHostel = models.BooleanField()
+    isHostel = models.BooleanField(default=False)
     hostel_room = models.CharField(default='NULL',max_length=20,blank=True)
 
     class Meta:

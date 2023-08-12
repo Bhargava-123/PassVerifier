@@ -1,4 +1,4 @@
-import 'package:buspassapp/pass_details_screen';
+import 'package:buspassapp/pass_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:buspassapp/scan_logs.dart';
 import 'package:buspassapp/scanner.dart';
@@ -114,7 +114,7 @@ class MyApp extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromARGB(255, 248, 166, 3),
-                              foregroundColor: Color.fromARGB(255, 0, 0, 0),
+                              foregroundColor: const Color.fromARGB(255, 0, 0, 0),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(20),
                           ),

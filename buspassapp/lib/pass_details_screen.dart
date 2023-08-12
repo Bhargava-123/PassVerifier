@@ -1,7 +1,5 @@
-
 import 'package:flutter/material.dart';
 import 'package:buspassapp/api_service.dart';
-import 'package:intl/intl.dart';
 
 class PassDetailsScreen extends StatefulWidget {
   const PassDetailsScreen({super.key});
@@ -11,74 +9,68 @@ class PassDetailsScreen extends StatefulWidget {
 }
 
 class _PassDetailsScreenState extends State<PassDetailsScreen> {
-
   late Future<List<dynamic>> _passDetails;
 
   void getDetails(String bioId) {
     setState(() {
       _passDetails = Future.value(PassService(bioId: bioId).getDetails());
+      // print(PassService(bioId: bioId).getDetails());
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
+    //data from qr code
     final arguments = (ModalRoute.of(context)?.settings.arguments ??
         <String, dynamic>{}) as Map;
 
     String bioId = arguments['data'].toString();
     //API call to get the details of the bioID scanned
     getDetails(bioId);
-    
-    // final now = new DateTime.now();
-    // String todaysDate = DateFormat("d-MM-yyyy").format(now);
-    // String chummaDate = DateFormat("d-MM-yyy HH:mm:ss").format(now);
-    // DateTime dateObject = DateTime.parse(chummaDate);
-    // print("$chummaDate");
     //API call to post the data to scanLog
-    PostScanLogService(bioId : bioId).postScanLog();
 
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 37, 55, 161),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        automaticallyImplyLeading : false,
+        automaticallyImplyLeading: false,
         title: InkWell(
-          onTap: (){
-            Navigator.pushNamed(context,"/home");
-            print("went home");
-          },
-          child: const Text('Pass Details')
-        ),
+            onTap: () {
+              Navigator.pushNamed(context, "/home");
+              // print("went home");
+            },
+            child: const Text('Pass Details')),
         backgroundColor: const Color(0xFF00127C),
       ),
-      body:  FutureBuilder(
+      body: FutureBuilder(
           future: _passDetails,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
             //The QR Code is invalid
-            if (snapshot.data[0]['Error'] == "False")
-            {
-              return Center(
-                child : Column(
-                  mainAxisAlignment : MainAxisAlignment.end,
-                  children : <Widget>[
-                    
-                    Text("Invalid Scan",style:TextStyle(fontSize : 25, color : Color(0xFFFFFFFF))),
-                    SizedBox(width: 100, height: 550),
-                    ScanAgain(),
-                    SizedBox(height:40),
-                  ]
-                ),
+            if (snapshot.data == '[]') {
+              return const Center(
+                child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: <Widget>[
+                      Text("Invalid Scan",
+                          style: TextStyle(
+                              fontSize: 25, color: Color(0xFFFFFFFF))),
+                      SizedBox(width: 100, height: 550),
+                      ScanAgain(),
+                      SizedBox(height: 40),
+                    ]),
               );
             }
             //The Qr Code is Valid
             else if (snapshot.hasData) {
               //the id is not found
+              //post bioid to scanLog once the QR is valid
+              // print("hello");
+              PostScanLogService(bioId: bioId).postScanLog();
+
               return ListView.builder(
                 itemCount: snapshot.data!.length,
                 itemBuilder: (context, index) {
-                  // print(snapshot.data[index]['isTransport'].toString());
-                  return ColumnWidget(responseList : snapshot.data[index]);
+                  return ColumnWidget(responseList: snapshot.data[index]);
                 },
               );
             } else if (snapshot.hasError) {
@@ -88,45 +80,49 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
             }
             return const Center(child: CircularProgressIndicator());
           }),
-
     );
   }
 }
 
 class ColumnWidget extends StatelessWidget {
-  late Map<String,dynamic> responseList;
-  ColumnWidget({super.key,required this.responseList});
+  final Map<String, dynamic> responseList;
+  const ColumnWidget({super.key, required this.responseList});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          SizedBox(
-            height: 30,
-          ),
-          PassDetailsWidget(responseList : responseList),
-          SizedBox(
-            height: 30,
-          ),
-          ValidityDetailsWidget(isValid: responseList['isTransport'], dept: "Transport",responseList : responseList),
-          SizedBox(
-            height: 5,
-          ),
-          ValidityDetailsWidget(isValid: responseList['isHostel'], dept: "Hostel",responseList : responseList),
-          SizedBox(
-            height: 20,
-          ),
-          ScanAgain()
-        ],
-      );
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: <Widget>[
+        const SizedBox(
+          height: 30,
+        ),
+        PassDetailsWidget(responseList: responseList),
+        const SizedBox(
+          height: 30,
+        ),
+        ValidityDetailsWidget(
+            isValid: responseList['isTransport'],
+            dept: "Transport",
+            responseList: responseList),
+        const SizedBox(
+          height: 5,
+        ),
+        ValidityDetailsWidget(
+            isValid: responseList['isHostel'],
+            dept: "Hostel",
+            responseList: responseList),
+        const SizedBox(
+          height: 20,
+        ),
+        const ScanAgain()
+      ],
+    );
   }
 }
-          
 
 class PassDetailsWidget extends StatelessWidget {
-  final Map<String,dynamic> responseList;
-  const PassDetailsWidget({super.key,required this.responseList});
+  final Map<String, dynamic> responseList;
+  const PassDetailsWidget({super.key, required this.responseList});
 
   @override
   Widget build(BuildContext context) {
@@ -141,16 +137,11 @@ class PassDetailsWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          DepartmentHeading(responseList : responseList),
-          PassImage(responseList : responseList),
-          // const SizedBox(
-          //   height: 10,
-          // ),
-          StudentDetail(responseList : responseList),
-          // const SizedBox(
-          //   height: 30,
-          // ),
-          SemiCircle(responseList : responseList),
+          DepartmentHeading(responseList: responseList),
+          PassImage(responseList: responseList),
+          StudentDetail(responseList: responseList),
+          //Semi Circle
+          SemiCircle(responseList: responseList),
         ],
       ),
     );
@@ -159,7 +150,7 @@ class PassDetailsWidget extends StatelessWidget {
 
 class DepartmentHeading extends StatelessWidget {
   final Map<String, dynamic> responseList;
-  const DepartmentHeading({super.key,required this.responseList});
+  const DepartmentHeading({super.key, required this.responseList});
 
   @override
   Widget build(BuildContext context) {
@@ -177,7 +168,7 @@ class DepartmentHeading extends StatelessWidget {
         child: Text(
           responseList['institution']!,
           textAlign: TextAlign.center,
-          style: TextStyle(color: Colors.white, fontSize: 25),
+          style: const TextStyle(color: Colors.white, fontSize: 25),
         ),
       ),
     );
@@ -186,7 +177,7 @@ class DepartmentHeading extends StatelessWidget {
 
 class StudentDetail extends StatelessWidget {
   final Map<String, dynamic> responseList;
-  const StudentDetail({super.key,required this.responseList});
+  const StudentDetail({super.key, required this.responseList});
 
   @override
   Widget build(BuildContext context) {
@@ -194,15 +185,15 @@ class StudentDetail extends StatelessWidget {
       children: [
         Text(
           responseList['student_name'],
-          style: TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: 20),
         ),
         Text(
           responseList['reg_number'],
-          style: TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: 20),
         ),
         Text(
-          responseList['department'] +" " +responseList['year'],
-          style: TextStyle(fontSize: 20),
+          responseList['department'] + " " + responseList['year'],
+          style: const TextStyle(fontSize: 20),
         )
       ],
     );
@@ -210,7 +201,7 @@ class StudentDetail extends StatelessWidget {
 }
 
 class PassImage extends StatelessWidget {
-  final Map<String,dynamic> responseList;
+  final Map<String, dynamic> responseList;
   const PassImage({super.key, required this.responseList});
 
   @override
@@ -225,9 +216,9 @@ class PassImage extends StatelessWidget {
 
 class SemiCircle extends StatelessWidget {
   final Map<String, dynamic> responseList;
-  const SemiCircle({super.key,required this.responseList});
+  const SemiCircle({super.key, required this.responseList});
   final TextStyle textStyle =
-      const TextStyle(fontSize: 18, fontWeight: FontWeight.w500);
+      const TextStyle(fontSize: 25, fontWeight: FontWeight.w800);
 
   @override
   Widget build(BuildContext context) {
@@ -246,13 +237,14 @@ class SemiCircle extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          // ignore: prefer_interpolation_to_compose_strings
           Text("", style: textStyle),
           Text(
             '',
             style: textStyle,
           ),
           Text(
-            "",
+            "BIO ID : " + responseList['bio_id'].toString(),
             style: textStyle,
           )
         ],
@@ -264,9 +256,12 @@ class SemiCircle extends StatelessWidget {
 class ValidityDetailsWidget extends StatelessWidget {
   final bool isValid;
   final String dept;
-  final Map<String,dynamic> responseList;
+  final Map<String, dynamic> responseList;
   const ValidityDetailsWidget(
-      {required this.isValid, required this.dept, super.key,required this.responseList});
+      {required this.isValid,
+      required this.dept,
+      super.key,
+      required this.responseList});
 
   @override
   Widget build(BuildContext context) {
@@ -280,22 +275,26 @@ class ValidityDetailsWidget extends StatelessWidget {
           const SizedBox(
             width: 30,
           ),
-          Column(
-            children : [Text(
-            dept,
-            style: const TextStyle(fontSize: 25, fontWeight: FontWeight.w900)),
+          Column(children: [
+            Text(dept,
+                style:
+                    const TextStyle(fontSize: 25, fontWeight: FontWeight.w900)),
             Text(
-              dept == "Transport" ? 
-              (isValid ?  "Valid Upto : " + responseList['valid_upto_bus'] : ""):
-              (isValid ? "Valid Upto : " + responseList['valid_upto_hostel'] : ""),
-            )]
+              dept == "Transport"
+                  ? (isValid
+                      ? "Valid Upto : " + responseList['valid_upto_bus']
+                      : "Not Valid")
+                  : (isValid
+                      ? "Valid Upto : " + responseList['valid_upto_hostel']
+                      : "Not Valid"),
+            )
+          ]),
+          Container(
+            padding: const EdgeInsets.only(right: 5),
+            child: isValid
+                ? Image.asset('assets/images/tick.png')
+                : Image.asset('assets/images/wrong.png'),
           )
-          ,
-          Container(padding: const EdgeInsets.only(right: 5),child: isValid
-              ? Image.asset('assets/images/tick.png')
-              : Image.asset('assets/images/wrong.png'),)
-          
-          
         ],
       ),
     );
@@ -312,7 +311,7 @@ class ScanAgain extends StatelessWidget {
         width: MediaQuery.of(context).size.width - 35,
         child: ElevatedButton(
           onPressed: () {
-            Navigator.pushNamed(context,'/scanner');
+            Navigator.pushNamed(context, '/scanner');
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFF8A521),

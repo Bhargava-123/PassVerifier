@@ -27,7 +27,7 @@ class getScanLogService {
   Future<List<dynamic>> getDetails() async {
     final response = await http.get(Uri.parse("$baseUrl/get-scan-log/$date/"));
     try {
-      debugPrint(jsonDecode(response.body).toString());
+      // debugPrint(jsonDecode(response.body).toString());
     } catch (err) {
       return Future.value([]);
     }
@@ -53,7 +53,7 @@ class AuthenticateService {
       }),
     );
 
-    debugPrint(response.body.runtimeType.toString());
+    // debugPrint(response.body.runtimeType.toString());
     return response.body;
   }
 }

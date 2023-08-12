@@ -2,8 +2,6 @@ import 'package:buspassapp/api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:calendar_timeline/calendar_timeline.dart';
 import 'package:intl/intl.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class ScanLogs extends StatelessWidget {
   const ScanLogs({super.key});
@@ -29,6 +27,17 @@ class _CalendarState extends State<Calendar> {
   void initState() {
     super.initState();
     _resetSelectedDate();
+    displayDate = DateFormat("d-MM-yyyy").format(DateTime.now());
+    _scanDetails =
+        Future.value(getScanLogService(date: displayDate).getDetails());
+    _scanDetails.then((value) {
+      //calling setState hook in after fetch the value
+      if (value.isEmpty) {
+        setLogAvaiable(false);
+      } else {
+        setLogAvaiable(true);
+      }
+    });
   }
 
   void setLogAvaiable(bool valuetobeset) {
@@ -150,7 +159,8 @@ class LogRowWidget extends StatelessWidget {
   final String bioId;
   final String scanDate;
   final String scanTime;
-  final TextStyle white = const TextStyle(color: Color.fromARGB(255, 254, 254, 254),fontSize: 25);
+  final TextStyle white =
+      const TextStyle(color: Color.fromARGB(255, 254, 254, 254), fontSize: 25);
   const LogRowWidget(
       {super.key,
       required this.bioId,
@@ -161,11 +171,12 @@ class LogRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(5.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
         Text(bioId, style: white),
-        Text(scanTime,style: white,),
+        Text(
+          scanTime,
+          style: white,
+        ),
       ]),
     );
   }

@@ -34,7 +34,6 @@ def get_scan_logs(request,date):
 
 @api_view(["POST","GET"])
 def post_scan_logs(request,date):
-    
     # scanLog_instance = ScanLog.objects.filter(scan_date="21-08-2023")
     # serializer = ScanLogSerializer(scanLog_instance,many=True)
     # print("hello")

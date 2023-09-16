@@ -65,7 +65,7 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
               //the id is not found
               //post bioid to scanLog once the QR is valid
               // print("hello");
-              PostScanLogService(bioId: bioId).postScanLog();
+              PostScanLogService(bioId: bioId,studentName: snapshot.data[0]['student_name']).postScanLog();
 
               return ListView.builder(
                 itemCount: snapshot.data!.length,

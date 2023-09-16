@@ -73,6 +73,7 @@ class ScanLog(models.Model):
         RegexValidator(r"^\d{2}:\d{2}:\d{2}$")
     ],null=True,blank=True)
     bio_id = models.ForeignKey(Pass,on_delete=models.CASCADE,default=0)
+    student_name = models.CharField(max_length=100,null=True,blank=True)
     class Meta:
         verbose_name_plural = "ScanLogs"
     

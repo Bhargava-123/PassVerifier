@@ -56,21 +56,30 @@ class _CalendarState extends State<Calendar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF01267C),
+        shadowColor: const Color.fromARGB(0, 255, 255, 255),
+        title: const Text(
+          "Scan Logs",
+          style:
+              TextStyle(fontSize: 23, color: Color.fromARGB(255, 248, 166, 33)),
+        ),
+      ),
       backgroundColor: const Color(0xFF01267C),
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: Text(
-                'Scan Logs',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleLarge!
-                    .copyWith(color: const Color.fromARGB(255, 248, 166, 33)),
-              ),
-            ),
+            // Padding(
+            //   padding: const EdgeInsets.all(16),
+            //   child: Text(
+            //     'Scan Logs',
+            //     style: Theme.of(context)
+            //         .textTheme
+            //         .titleLarge!
+            //         .copyWith(color: const Color.fromARGB(255, 248, 166, 33)),
+            //   ),
+            // ),
             CalendarTimeline(
               showYears: true,
               initialDate: _selectedDate,
@@ -142,6 +151,7 @@ class ScanLogListWidget extends StatelessWidget {
                       var data = snapshot.data[index];
                       return LogRowWidget(
                           bioId: data['bio_id'].toString(),
+                          name: data['student_name'].toString(),
                           scanDate: data['scan_date'],
                           scanTime: data['scan_time']);
                     },
@@ -159,24 +169,54 @@ class LogRowWidget extends StatelessWidget {
   final String bioId;
   final String scanDate;
   final String scanTime;
-  final TextStyle white =
+  final String name;
+  final TextStyle whiteText =
       const TextStyle(color: Color.fromARGB(255, 254, 254, 254), fontSize: 25);
   const LogRowWidget(
       {super.key,
       required this.bioId,
       required this.scanDate,
-      required this.scanTime});
+      required this.scanTime,
+      required this.name});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(5.0),
+      decoration: const BoxDecoration(
+          border: Border(
+              top: BorderSide(
+                  color: Color.fromARGB(255, 255, 254, 254), width: 0.5),
+              bottom: BorderSide(
+                  color: Color.fromARGB(255, 255, 254, 254), width: 0.5))),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-        Text(bioId, style: white),
+        // Text(bioId, style: whiteText),
+        BioIdDetails(bioId: bioId, name: name),
         Text(
           scanTime,
-          style: white,
+          style: whiteText,
         ),
+      ]),
+    );
+  }
+}
+
+class BioIdDetails extends StatelessWidget {
+  final String bioId;
+  final String name;
+  const BioIdDetails({super.key, required this.bioId, required this.name});
+  final TextStyle whiteText =
+      const TextStyle(color: Color.fromARGB(255, 254, 254, 254), fontSize: 25);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.only(top: 5.0, bottom: 5.0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(name, style: whiteText),
+        Text(bioId,
+            style: const TextStyle(
+                color: Color.fromARGB(184, 254, 254, 254), fontSize: 15))
       ]),
     );
   }

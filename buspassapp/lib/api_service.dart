@@ -62,7 +62,8 @@ class PostScanLogService {
   String date = DateFormat("d-MM-yyyy").format(DateTime.now());
   String time = DateFormat("HH:mm:ss").format(DateTime.now());
   String bioId;
-  PostScanLogService({required this.bioId});
+  String studentName;
+  PostScanLogService({required this.bioId, required this.studentName});
   Future<String> postScanLog() async {
     var response = await http.post(
       Uri.parse('$baseUrl/post-scan-log/$date/'),
@@ -73,6 +74,7 @@ class PostScanLogService {
         "scan_date": date,
         "scan_time": time,
         "bio_id": bioId,
+        "student_name": studentName,
       }),
     );
     // print(response.body.toString());

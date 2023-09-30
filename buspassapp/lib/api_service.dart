@@ -1,9 +1,14 @@
 import 'dart:convert';
+import 'package:buspassapp/Controller.dart';
+import 'package:buspassapp/main.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 
 String baseUrl = "http://127.0.0.1:8000/api";
+final controller = Get.put(ControllerPage());
+final ControllerPage ctrl = Get.find();
 
 class PassService {
   String bioId;
@@ -26,6 +31,7 @@ class getScanLogService {
   getScanLogService({required this.date});
   Future<List<dynamic>> getDetails() async {
     final response = await http.get(Uri.parse("$baseUrl/get-scan-log/$date/"));
+    debugPrint(ctrl.authToken);
     try {
       // debugPrint(jsonDecode(response.body).toString());
     } catch (err) {
@@ -35,15 +41,18 @@ class getScanLogService {
   }
 }
 
+
+
 class AuthenticateService {
   String username;
   String password;
+
   AuthenticateService({required this.username, required this.password});
   Future<String> getDetails() async {
     // print(password);
     // print(username);
     final response = await http.post(
-      Uri.parse('$baseUrl/authenticate/'),
+      Uri.parse('$baseUrl/token/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -53,7 +62,16 @@ class AuthenticateService {
       }),
     );
 
-    // debugPrint(response.body.runtimeType.toString());
+    //after submitting response
+    final responseJson = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      // successSnack("Successful Login","");
+      // debugPrint(responseJson['access']);
+      controller.setToken(responseJson['access']);
+      Get.to(const Home());
+    } else {
+      failedSnack("Failed", "Wrong Password or Username");
+    }
     return response.body;
   }
 }
@@ -65,10 +83,12 @@ class PostScanLogService {
   String studentName;
   PostScanLogService({required this.bioId, required this.studentName});
   Future<String> postScanLog() async {
+    debugPrint(ctrl.authToken);
     var response = await http.post(
       Uri.parse('$baseUrl/post-scan-log/$date/'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
+        'Authorization': ctrl.authToken,
       },
       body: jsonEncode({
         "scan_date": date,

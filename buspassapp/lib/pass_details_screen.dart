@@ -33,7 +33,6 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
       backgroundColor: const Color.fromARGB(255, 37, 55, 161),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        automaticallyImplyLeading: false,
         title: InkWell(
             onTap: () {
               Navigator.pushNamed(context, "/home");

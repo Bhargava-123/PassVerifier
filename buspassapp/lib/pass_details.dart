@@ -1,7 +1,6 @@
 import 'package:buspassapp/api_service.dart';
 import 'package:flutter/material.dart';
 
-
 class PassDetails extends StatefulWidget {
   const PassDetails({super.key});
 
@@ -29,7 +28,6 @@ class _PassDetailsState extends State<PassDetails> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pass Details"),
-        automaticallyImplyLeading: false,
       ),
       body: FutureBuilder(
           future: _passDetails,
@@ -52,4 +50,3 @@ class _PassDetailsState extends State<PassDetails> {
     );
   }
 }
-

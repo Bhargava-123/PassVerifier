@@ -2,44 +2,67 @@ import 'package:buspassapp/pass_details_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:buspassapp/scan_logs.dart';
 import 'package:buspassapp/scanner.dart';
+import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:buspassapp/api_service.dart';
 
 void main() {
-  runApp(MaterialApp(
+  runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(fontFamily: 'Montserrat'),
     title: "Named Routes Demo",
-    initialRoute: '/',
-    routes: {
-      '/': (context) => MyApp(),
-      '/home': (context) => const Home(),
-      '/scanLogs': (context) => const ScanLogs(),
-      '/scanner': (context) => Scanner(),
-      '/passDetails': (context) => const PassDetailsScreen(),
-    },
+    initialRoute: Routes.MyAppScreen,
+    getPages: getPages,
   ));
+}
+
+final getPages = [
+  GetPage(
+    name: Routes.MyAppScreen,
+    page: () => MyApp(),
+  ),
+  GetPage(name: Routes.HomeScreen, page: () => const Home()),
+  GetPage(name: Routes.ScanLogsScreen, page: () => const ScanLogs()),
+  GetPage(name: Routes.ScannerScreen, page: () => Scanner()),
+  GetPage(
+    name: Routes.PassDetailsScreen,
+    page: () => const PassDetailsScreen(),
+  )
+];
+
+class Routes {
+  static String MyAppScreen = '/';
+  static String HomeScreen = '/home';
+  static String ScanLogsScreen = '/scanLogs';
+  static String ScannerScreen = '/scanner';
+  static String PassDetailsScreen = '/passDetails';
 }
 
 class MyApp extends StatelessWidget {
   MyApp({super.key});
-  final TextEditingController usernameController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Padding(
-          padding: EdgeInsets.only(top: 15.0),
+          padding: EdgeInsets.only(top: 15.0, bottom: 10.0),
           child: Center(
-            child: Text(
-              "Pass Verifier",
-              style: TextStyle(fontSize: 35),
-            ),
-          ),
+              child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Pass Verifier",
+                style: TextStyle(fontSize: 35),
+              ),
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 23.0,
+              )
+            ],
+          )),
         ),
         backgroundColor: const Color(0xFF01267C),
         shadowColor: const Color.fromARGB(0, 255, 255, 255),
@@ -52,6 +75,7 @@ class MyApp extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              //SEC LOGO
               Padding(
                 padding: const EdgeInsets.only(top: 80.0, bottom: 100.0),
                 child: Image.asset(
@@ -60,78 +84,144 @@ class MyApp extends StatelessWidget {
                   width: 170,
                 ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  //username TextField
-                  CustomTextField(
-                    hintTextValue: "Username",
-                    textEditingController: usernameController,
-                  ),
-                  const SizedBox(
-                    height: 40,
-                    width: 100,
-                  ),
-                  //password TextField
-                  PasswordTextField(
-                    textEditingController: passwordController,
-                  ),
-                  const SizedBox(
-                    height: 40,
-                    width: 100,
-                  ),
-                  SizedBox(
-                    child: Container(
-                      width: 120,
-                      height: 50,
-                      decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          //log in button api connection logic
-                          // print(usernameController.text);
-                          // print(passwordController.text);
-                          String responseResult = await AuthenticateService(
-                                  username: usernameController.text,
-                                  password: passwordController.text)
-                              .getDetails();
-                          // print(json.decode(responseResult).toS;
-                          // print(json.decode(responseResult.toString()));
-                          String isPermitted =
-                              json.decode(responseResult)['response'];
+              const FormWidget(),
+              //USERNAME AND TEXT FIELD
+              // Column(
+              //   mainAxisAlignment: MainAxisAlignment.start,
+              //   children: [
+              //     //username TextField
+              //     CustomTextField(
+              //       hintTextValue: "Username",
+              //       textEditingController: usernameController,
+              //     ),
+              //     const SizedBox(
+              //       height: 40,
+              //       width: 100,
+              //     ),
+              //     //password TextField
+              //     PasswordTextField(
+              //       textEditingController: passwordController,
+              //     ),
+              //     const SizedBox(
+              //       height: 40,
+              //       width: 100,
+              //     ),
+              //     SizedBox(
+              //       child: Container(
+              //         width: 120,
+              //         height: 50,
+              //         decoration: const BoxDecoration(
+              //             borderRadius: BorderRadius.all(Radius.circular(20))),
+              //         child: ElevatedButton(
+              //           onPressed: () async {
+              //             //log in button api connection logic
+              //             // print(usernameController.text);
+              //             // print(passwordController.text);
+              //             String responseResult = await AuthenticateService(
+              //                     username: usernameController.text,
+              //                     password: passwordController.text)
+              //                 .getDetails();
+              //             // print(json.decode(responseResult).toS;
+              //             // print(json.decode(responseResult.toString()));
+              //             String isPermitted =
+              //                 json.decode(responseResult)['response'];
 
-                          if (isPermitted == 'true' && context.mounted) {
-                            Navigator.pushNamed(context, '/home');
-                          } else {
-                            print('not permitted');
-                            const snackBar = SnackBar(
-                              content: Text("Wrong Password or Username"),
-                            );
-                            ScaffoldMessenger.of(context)
-                                .showSnackBar(snackBar);
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 248, 166, 3),
-                              foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                        child: const Text(
-                          'LOG IN',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
+              //             if (isPermitted == 'true' && context.mounted) {
+              //               Navigator.pushNamed(context, '/home');
+              //             } else {
+              //               print('not permitted');
+              //               const snackBar = SnackBar(
+              //                 content: Text("Wrong Password or Username"),
+              //               );
+              //               ScaffoldMessenger.of(context)
+              //                   .showSnackBar(snackBar);
+              //             }
+              //           },
+              //           style: ElevatedButton.styleFrom(
+              //             backgroundColor:
+              //                 const Color.fromARGB(255, 248, 166, 3),
+              //                 foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+              //             shape: RoundedRectangleBorder(
+              //               borderRadius: BorderRadius.circular(20),
+              //             ),
+              //           ),
+              //           child: const Text(
+              //             'LOG IN',
+              //             style: TextStyle(fontSize: 16),
+              //           ),
+              //         ),
+              //       ),
+              //     )
+              //   ],
+              // ),
             ],
           ),
         ),
       ),
+    );
+  }
+}
+
+class FormWidget extends StatefulWidget {
+  const FormWidget({super.key});
+
+  @override
+  State<FormWidget> createState() => _FormWidgetState();
+}
+
+class _FormWidgetState extends State<FormWidget> {
+  final TextEditingController usernameController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        //username TextField
+        CustomTextField(
+          hintTextValue: "Username",
+          textEditingController: usernameController,
+        ),
+        const SizedBox(
+          height: 40,
+          width: 100,
+        ),
+        //password TextField
+        PasswordTextField(
+          textEditingController: passwordController,
+        ),
+        const SizedBox(
+          height: 40,
+          width: 100,
+        ),
+        SizedBox(
+          child: Container(
+            width: 120,
+            height: 50,
+            decoration: const BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20))),
+            child: ElevatedButton(
+              onPressed: () async {
+                AuthenticateService(
+                        username: usernameController.text,
+                        password: passwordController.text)
+                    .getDetails();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color.fromARGB(255, 248, 166, 3),
+                foregroundColor: const Color.fromARGB(255, 0, 0, 0),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text(
+                'LOG IN',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ),
+        )
+      ],
     );
   }
 }
@@ -274,4 +364,30 @@ class Button extends StatelessWidget {
       ),
     ));
   }
+}
+
+successSnack(title, subtitle) {
+  Get.snackbar(
+    title,
+    subtitle,
+    colorText: Colors.white,
+    backgroundColor: Colors.black,
+    snackPosition: SnackPosition.BOTTOM,
+    borderRadius: 5.0,
+    margin: const EdgeInsets.all(10),
+    duration: const Duration(milliseconds: 2000),
+  );
+}
+
+failedSnack(title, subtitle) {
+  Get.snackbar(
+    title,
+    subtitle,
+    colorText: Colors.white,
+    backgroundColor: Colors.red,
+    snackPosition: SnackPosition.BOTTOM,
+    borderRadius: 5.0,
+    margin: const EdgeInsets.all(10),
+    duration: const Duration(milliseconds: 2000),
+  );
 }

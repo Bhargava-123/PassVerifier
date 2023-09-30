@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'package:buspassapp/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(GetMaterialApp(
@@ -202,10 +203,14 @@ class _FormWidgetState extends State<FormWidget> {
                 borderRadius: BorderRadius.all(Radius.circular(20))),
             child: ElevatedButton(
               onPressed: () async {
+                SharedPreferences pref = await SharedPreferences.getInstance();
+                // debugPrint(pref.getString('access'));
                 AuthenticateService(
                         username: usernameController.text,
                         password: passwordController.text)
                     .getDetails();
+                // pref.setString('access', ctrl.authToken);
+                debugPrint(pref.getString('access'));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 248, 166, 3),

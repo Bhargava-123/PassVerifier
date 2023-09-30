@@ -15,14 +15,20 @@ class PassService {
   PassService({required this.bioId});
   Future<List<dynamic>> getDetails() async {
     final response =
-        await http.get(Uri.parse("$baseUrl/get-pass-details/$bioId/"));
+        await http.get(Uri.parse("$baseUrl/get-pass-details/$bioId/"),
+        headers: <String,String>{
+          'Content-Type': "application/json",
+          'Authorization': ctrl.authToken
+        });
     // debugPrint(response.body.runtimeType.toString());
-    if (response.body == '[]') {
+    if (response.statusCode == 200) {
       return Future.value([
         {'Error': "False"}
       ]);
+      
     }
     return Future.value(jsonDecode(response.body));
+    
   }
 }
 
@@ -30,18 +36,20 @@ class getScanLogService {
   String date;
   getScanLogService({required this.date});
   Future<List<dynamic>> getDetails() async {
-    final response = await http.get(Uri.parse("$baseUrl/get-scan-log/$date/"));
-    debugPrint(ctrl.authToken);
-    try {
-      // debugPrint(jsonDecode(response.body).toString());
-    } catch (err) {
+    final response = await http.get(Uri.parse("$baseUrl/get-scan-log/$date/"),
+        headers: <String, String>{
+          'Content-Type': 'application/json',
+          'Authorization': ctrl.authToken
+        });
+    final responseJson = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      return Future.value(responseJson);
+    } else {
+      failedSnack("Failed", "Failed to load Data");
       return Future.value([]);
     }
-    return Future.value(jsonDecode(response.body));
   }
 }
-
-
 
 class AuthenticateService {
   String username;
@@ -68,6 +76,7 @@ class AuthenticateService {
       // successSnack("Successful Login","");
       // debugPrint(responseJson['access']);
       controller.setToken(responseJson['access']);
+
       Get.to(const Home());
     } else {
       failedSnack("Failed", "Wrong Password or Username");

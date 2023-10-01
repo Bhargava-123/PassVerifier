@@ -41,8 +41,32 @@ class Routes {
   static String PassDetailsScreen = '/passDetails';
 }
 
-class MyApp extends StatelessWidget {
+void whereToGo() async {
+  var pref = await SharedPreferences.getInstance();
+  bool? isLogin = pref.getBool(MyApp.KEYLOGIN);
+  if (isLogin != null) {
+    if (isLogin) {
+      Get.to(const Home());
+    } else {
+      Get.to(MyApp());
+    }
+  }
+}
+
+class MyApp extends StatefulWidget {
   MyApp({super.key});
+  static String KEYLOGIN = 'login';
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+    whereToGo();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,75 +110,6 @@ class MyApp extends StatelessWidget {
                 ),
               ),
               const FormWidget(),
-              //USERNAME AND TEXT FIELD
-              // Column(
-              //   mainAxisAlignment: MainAxisAlignment.start,
-              //   children: [
-              //     //username TextField
-              //     CustomTextField(
-              //       hintTextValue: "Username",
-              //       textEditingController: usernameController,
-              //     ),
-              //     const SizedBox(
-              //       height: 40,
-              //       width: 100,
-              //     ),
-              //     //password TextField
-              //     PasswordTextField(
-              //       textEditingController: passwordController,
-              //     ),
-              //     const SizedBox(
-              //       height: 40,
-              //       width: 100,
-              //     ),
-              //     SizedBox(
-              //       child: Container(
-              //         width: 120,
-              //         height: 50,
-              //         decoration: const BoxDecoration(
-              //             borderRadius: BorderRadius.all(Radius.circular(20))),
-              //         child: ElevatedButton(
-              //           onPressed: () async {
-              //             //log in button api connection logic
-              //             // print(usernameController.text);
-              //             // print(passwordController.text);
-              //             String responseResult = await AuthenticateService(
-              //                     username: usernameController.text,
-              //                     password: passwordController.text)
-              //                 .getDetails();
-              //             // print(json.decode(responseResult).toS;
-              //             // print(json.decode(responseResult.toString()));
-              //             String isPermitted =
-              //                 json.decode(responseResult)['response'];
-
-              //             if (isPermitted == 'true' && context.mounted) {
-              //               Navigator.pushNamed(context, '/home');
-              //             } else {
-              //               print('not permitted');
-              //               const snackBar = SnackBar(
-              //                 content: Text("Wrong Password or Username"),
-              //               );
-              //               ScaffoldMessenger.of(context)
-              //                   .showSnackBar(snackBar);
-              //             }
-              //           },
-              //           style: ElevatedButton.styleFrom(
-              //             backgroundColor:
-              //                 const Color.fromARGB(255, 248, 166, 3),
-              //                 foregroundColor: const Color.fromARGB(255, 0, 0, 0),
-              //             shape: RoundedRectangleBorder(
-              //               borderRadius: BorderRadius.circular(20),
-              //             ),
-              //           ),
-              //           child: const Text(
-              //             'LOG IN',
-              //             style: TextStyle(fontSize: 16),
-              //           ),
-              //         ),
-              //       ),
-              //     )
-              //   ],
-              // ),
             ],
           ),
         ),
@@ -173,6 +128,7 @@ class FormWidget extends StatefulWidget {
 class _FormWidgetState extends State<FormWidget> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -203,8 +159,10 @@ class _FormWidgetState extends State<FormWidget> {
                 borderRadius: BorderRadius.all(Radius.circular(20))),
             child: ElevatedButton(
               onPressed: () async {
-                SharedPreferences pref = await SharedPreferences.getInstance();
-                // debugPrint(pref.getString('access'));
+                //setting sharedPreferences
+                var pref = await SharedPreferences.getInstance();
+                pref.setBool(MyApp.KEYLOGIN, true);
+
                 AuthenticateService(
                         username: usernameController.text,
                         password: passwordController.text)
@@ -307,14 +265,33 @@ class Home extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          title: const Padding(
-            padding: EdgeInsets.only(top: 15.0),
+          title: Padding(
+            padding: const EdgeInsets.only(top: 15.0),
             child: Center(
-              child: Text(
-                "Pass Verifier",
-                style: TextStyle(fontSize: 35),
+                child: Padding(
+              padding: const EdgeInsets.only(bottom: 10.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    "Pass Verifier",
+                    style: TextStyle(fontSize: 35),
+                  ),
+                  PopupMenuButton(
+                      itemBuilder: (context) => [
+                            PopupMenuItem(
+                              child: const Text("Log Out"),
+                              onTap: () async {
+                                var pref =
+                                    await SharedPreferences.getInstance();
+                                pref.setBool(MyApp.KEYLOGIN, false);
+                                Get.to(MyApp());
+                              },
+                            ),
+                          ])
+                ],
               ),
-            ),
+            )),
           ),
           backgroundColor: const Color(0xFF01267C),
           shadowColor: const Color.fromARGB(0, 255, 255, 255),

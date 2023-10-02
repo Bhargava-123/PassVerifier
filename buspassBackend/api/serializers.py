@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Pass,ScanLog,User
+from .models import Pass,ScanLog,User,SessionTable
 
 class PassSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,5 +15,10 @@ class ScanLogSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
+        fields = "__all__"
+
+class SessionTableSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SessionTable
         fields = "__all__"
 

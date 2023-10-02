@@ -88,9 +88,13 @@ class User(models.Model):
         return self.username
 
 class SessionTable(models.Model):
-    user_id = models.IntegerField(max_length=1000)
+    user_id = models.IntegerField(primary_key=True)
     username = models.CharField(max_length=255)
     access_token = models.CharField(max_length=1000)
     refresh_token = models.CharField(max_length=1000)
-    
+    exp = models.IntegerField()
+    iat = models.IntegerField()
+
+    def __str__(self):
+        return str(self.user_id)
 

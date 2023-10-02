@@ -4,11 +4,15 @@ from .models import Pass,ScanLog,User
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .serializers import PassSerializer,ScanLogSerializer,UserSerializer
+from .serializers import PassSerializer,ScanLogSerializer,UserSerializer,SessionTableSerializer
 import jwt
+import requests
 import base64
 import buspassBackend.settings as settings
 from datetime import datetime as dt
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenObtainSerializer
+import json
 
 #institution
 #name
@@ -64,15 +68,39 @@ def post_scan_logs(request,date):
         
 @api_view(['POST'])
 def authenticate_user(request):
-    response_data = {}
-    if request.method == "POST":
-        user_instance = User.objects.filter(username=request.data['username'],password=request.data['password'])
-        serializer = UserSerializer(user_instance,many=True)
-        if serializer.data == []:#wrong password or username
-            response_data['response'] = 'false'
-        else:
-            response_data['response'] = 'true'
-    return Response(response_data)
+    
+    #generating access and refresh token
+    response = requests.post('http://127.0.0.1:8000/api/token/',data=request.data)
+    access_token = response.json()['access']
+    refresh_token = response.json()['refresh']
+    #decoding access_token to get user_id
+    user_id = ""
+    try:
+        decoded_data = jwt.decode(jwt=access_token,key=settings.SECRET_KEY,algorithms=["HS256"])
+        user_id = decoded_data['user_id']
+        exp = decoded_data['exp']
+        iat = decoded_data['iat']
+        print(type(exp))
+        print(type(iat))
+    except:
+        pass
+    data = {
+        'user_id' : user_id,
+        'username' : request.data['username'],
+        'access_token' : access_token,
+        'refresh_token' : refresh_token,
+        'exp' : exp,
+        'iat' : iat
+        }
+    serializer = SessionTableSerializer(data=data)
+    if serializer.is_valid():
+        serializer.save()
+    else:
+        return Response(status=401)
+    return Response(data)
+
+    
+
 
 @api_view(['POST'])
 def decode_jwt_example(request):
@@ -80,16 +108,21 @@ def decode_jwt_example(request):
     if request.method == "POST":
         response_data['access_token'] = request.data['access_token']
         print(response_data['access_token'])
-        decoded_data = jwt.decode(jwt=request.data['access_token'],key=settings.SECRET_KEY,algorithms=["HS256"])
-        print(decoded_data['user_id'])
-        timestamp_now = dt.now().replace(microsecond=0)
-        timestamp_exp = dt.fromtimestamp(int(decoded_data['exp']))
-        print(timestamp_now < timestamp_exp)
-        print(timestamp_now)   
-        print(timestamp_exp)
+        try:
+            decoded_data = jwt.decode(jwt=request.data['access_token'],key=settings.SECRET_KEY,algorithms=["HS256"])
+            print(decoded_data['user_id'])
+            timestamp_now = dt.now().replace(microsecond=0)
+            #converting int timestamp into date and time
+            timestamp_exp = dt.fromtimestamp(int(decoded_data['exp']))
+            print(timestamp_now < timestamp_exp)
+            print(timestamp_now)   
+            print(timestamp_exp)
+        except:
+            return Response(status=401)
         # response_data['decoded_data'] = decoded_data
     return Response(response_data)
-    
+
+
     
 
 #{"username": "a", "password": "123"}

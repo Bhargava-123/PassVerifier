@@ -87,3 +87,10 @@ class User(models.Model):
     def __str__(self):
         return self.username
 
+class SessionTable(models.Model):
+    user_id = models.IntegerField(max_length=1000)
+    username = models.CharField(max_length=255)
+    access_token = models.CharField(max_length=1000)
+    refresh_token = models.CharField(max_length=1000)
+    
+

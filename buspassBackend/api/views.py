@@ -5,6 +5,10 @@ from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import PassSerializer,ScanLogSerializer,UserSerializer
+import jwt
+import base64
+import buspassBackend.settings as settings
+from datetime import datetime as dt
 
 #institution
 #name
@@ -31,6 +35,11 @@ def get_scan_logs(request,date):
     scanLog_instance = ScanLog.objects.filter(scan_date=date)
     serializer = ScanLogSerializer(scanLog_instance,many=True)
     return Response(serializer.data)
+#userid
+#access token
+#refresh token
+#created date and timestamp
+#expiry
 
 @api_view(["POST","GET"])
 def post_scan_logs(request,date):
@@ -64,6 +73,23 @@ def authenticate_user(request):
         else:
             response_data['response'] = 'true'
     return Response(response_data)
+
+@api_view(['POST'])
+def decode_jwt_example(request):
+    response_data = {}
+    if request.method == "POST":
+        response_data['access_token'] = request.data['access_token']
+        print(response_data['access_token'])
+        decoded_data = jwt.decode(jwt=request.data['access_token'],key=settings.SECRET_KEY,algorithms=["HS256"])
+        print(decoded_data['user_id'])
+        timestamp_now = dt.now().replace(microsecond=0)
+        timestamp_exp = dt.fromtimestamp(int(decoded_data['exp']))
+        print(timestamp_now < timestamp_exp)
+        print(timestamp_now)   
+        print(timestamp_exp)
+        # response_data['decoded_data'] = decoded_data
+    return Response(response_data)
+    
     
 
 #{"username": "a", "password": "123"}

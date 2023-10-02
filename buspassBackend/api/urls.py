@@ -6,7 +6,8 @@ urlpatterns = [
     path('get-scan-log/<str:date>/',views.get_scan_logs),
     path('post-scan-log/<str:date>/',views.post_scan_logs),
     path('authenticate/',views.authenticate_user),
-    path('decode-jwt/',views.decode_jwt_example)
+    path('decode-jwt/',views.decode_jwt_example),
+    path('check-access-token/',views.check_access_token)
     
 ]
 

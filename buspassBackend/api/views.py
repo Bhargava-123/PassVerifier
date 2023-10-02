@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from .models import Pass,ScanLog,User
+from .models import *
 from rest_framework import serializers
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
@@ -121,6 +122,42 @@ def decode_jwt_example(request):
             return Response(status=401)
         # response_data['decoded_data'] = decoded_data
     return Response(response_data)
+
+@api_view(['POST'])
+def check_access_token(request):
+    if request.method == "POST":
+        #WAS WORKING HERE BITCH
+        access_token = request.data['access_token']
+        sessiontable_instance = SessionTable.objects.filter(access_token=access_token)
+        serializer = SessionTableSerializer(sessiontable_instance,many=True)
+        try:
+            decoded_data = jwt.decode(jwt=access_token,key=settings.SECRET_KEY,algorithms=["HS256"])
+            requested_user_id = decoded_data['user_id']
+            if(serializer.data == []):
+                return Response(status=401)
+            else:   
+                return Response(serializer.data[0])
+                return Response(status=200)
+        except:
+            print("ACCESS TOKEN HAS EXPIRED")
+            #if access token expires or isn't valid
+            #renew new access token
+            if(serializer.data != []):
+                print('ACCESS TOKEN FOUND')
+                renew_new_access_token(serializer.data[0]['refresh_token'])
+            else:
+                print('ACCESS TOKEN NOT FOUND YOU ARE HACKER')
+            return Response(status=401)
+        return Response(status=200)
+
+def renew_new_access_token(refresh_token):
+    print("RENEWING ACCESS TOKEN")
+    response = requests.post("http://127.0.0.1:8000/api/token/refresh/",data={'refresh' :refresh_token})
+    print(response.json())
+    #update in database
+    #i was working here
+    return response.json()
+        
 
 
     

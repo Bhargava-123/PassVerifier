@@ -131,32 +131,42 @@ def check_access_token(request):
         sessiontable_instance = SessionTable.objects.filter(access_token=access_token)
         serializer = SessionTableSerializer(sessiontable_instance,many=True)
         try:
+            #checking if access token is valid or not
             decoded_data = jwt.decode(jwt=access_token,key=settings.SECRET_KEY,algorithms=["HS256"])
             requested_user_id = decoded_data['user_id']
             if(serializer.data == []):
+                #access token not found
                 return Response(status=401)
             else:   
                 return Response(serializer.data[0])
                 return Response(status=200)
         except:
-            print("ACCESS TOKEN HAS EXPIRED")
             #if access token expires or isn't valid
             #renew new access token
             if(serializer.data != []):
                 print('ACCESS TOKEN FOUND')
-                renew_new_access_token(serializer.data[0]['refresh_token'])
+                access_token = serializer.data[0]['access_token']
+                refresh_token = serializer.data[0]['refresh_token']
+                new_tokens = renew_new_access_token(access_token,refresh_token)
+                return Response(new_tokens)
             else:
-                print('ACCESS TOKEN NOT FOUND YOU ARE HACKER')
-            return Response(status=401)
+                #incorrect access token
+                return Response(status=401)
         return Response(status=200)
 
-def renew_new_access_token(refresh_token):
-    print("RENEWING ACCESS TOKEN")
+def renew_new_access_token(access_token,refresh_token):
     response = requests.post("http://127.0.0.1:8000/api/token/refresh/",data={'refresh' :refresh_token})
-    print(response.json())
+    new_access_token = response.json()['access']
+    new_refresh_token = response.json()['refresh']
     #update in database
-    #i was working here
+    SessionTableInstance = SessionTable.objects.filter(access_token=access_token)
+    serializer = SessionTableSerializer(SessionTableInstance,many=True)
+    SessionTableInstance.update(access_token=new_access_token)
+    SessionTableInstance.update(refresh_token=new_refresh_token)    
     return response.json()
+
+def check_refresh_token(refresh_token):
+    return Response(status=200)
         
 
 

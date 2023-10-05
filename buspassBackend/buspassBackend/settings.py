@@ -84,11 +84,13 @@ DATABASES = {
     }
 }
 
+BASE_URL = 'http://127.0.0.1:8000/api/'
+
 SECRET_KEY = 'this-is-not-a-secret-key'
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(seconds=1),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=90),
+    "REFRESH_TOKEN_LIFETIME": timedelta(seconds=1),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
     "UPDATE_LAST_LOGIN": True,

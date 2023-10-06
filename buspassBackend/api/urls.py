@@ -12,14 +12,16 @@ urlpatterns = [
     path('login/',views.login),
 
     #decode access-token and return 200 if valid 401 if invalid
-    path('check-token/',views.check_token),
+    path('check-access-token/',views.check_access_token),
 
     # #decode refresh-tokne and return 200 if valid 401 if invalid
-
-
+    path('check-refresh-token/',views.check_refresh_token),
     # check the expiry of refresh token
     # #remove the user id entry from the table
     path('logout/',views.logout),
+
+    path('check-token-validity/',views.check_token_validity),
+    path('get-user-id/',views.get_user_id),
     
     # # get refresh token as request, check its validity
     # #generate new accesss and refresh token - update in session table

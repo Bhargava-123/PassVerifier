@@ -91,7 +91,6 @@ class SessionTable(models.Model):
     user_id = models.IntegerField(primary_key=True)
     username = models.CharField(max_length=255)
     access_token = models.CharField(max_length=1000)
-    refresh_token = models.CharField(max_length=1000)
     exp = models.IntegerField()
     iat = models.IntegerField()
 

@@ -1,4 +1,5 @@
 import 'package:buspassapp/pass_details_screen.dart';
+import 'package:buspassapp/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:buspassapp/scan_logs.dart';
 import 'package:buspassapp/scanner.dart';
@@ -14,7 +15,7 @@ void main() {
     debugShowCheckedModeBanner: false,
     theme: ThemeData(fontFamily: 'Montserrat'),
     title: "Named Routes Demo",
-    initialRoute: Routes.MyAppScreen,
+    initialRoute: Routes.SplashScreen,
     getPages: getPages,
   ));
 }
@@ -24,6 +25,7 @@ final getPages = [
     name: Routes.MyAppScreen,
     page: () => MyApp(),
   ),
+  GetPage(name: Routes.SplashScreen, page: () => const SplashScreen()),
   GetPage(name: Routes.HomeScreen, page: () => const Home()),
   GetPage(name: Routes.ScanLogsScreen, page: () => const ScanLogs()),
   GetPage(name: Routes.ScannerScreen, page: () => Scanner()),
@@ -39,23 +41,11 @@ class Routes {
   static String ScanLogsScreen = '/scanLogs';
   static String ScannerScreen = '/scanner';
   static String PassDetailsScreen = '/passDetails';
-}
-
-void whereToGo() async {
-  var pref = await SharedPreferences.getInstance();
-  bool? isLogin = pref.getBool(MyApp.KEYLOGIN);
-  if (isLogin != null) {
-    if (isLogin) {
-      Get.to(const Home());
-    } else {
-      Get.to(MyApp());
-    }
-  }
+  static String SplashScreen = '/splashScreen';
 }
 
 class MyApp extends StatefulWidget {
   MyApp({super.key});
-  static String KEYLOGIN = 'login';
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -65,7 +55,6 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    whereToGo();
   }
 
   @override
@@ -159,16 +148,11 @@ class _FormWidgetState extends State<FormWidget> {
                 borderRadius: BorderRadius.all(Radius.circular(20))),
             child: ElevatedButton(
               onPressed: () async {
-                //setting sharedPreferences
-                var pref = await SharedPreferences.getInstance();
-                pref.setBool(MyApp.KEYLOGIN, true);
-
                 AuthenticateService(
                         username: usernameController.text,
                         password: passwordController.text)
                     .getDetails();
                 // pref.setString('access', ctrl.authToken);
-                debugPrint(pref.getString('access'));
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 248, 166, 3),
@@ -282,9 +266,6 @@ class Home extends StatelessWidget {
                             PopupMenuItem(
                               child: const Text("Log Out"),
                               onTap: () async {
-                                var pref =
-                                    await SharedPreferences.getInstance();
-                                pref.setBool(MyApp.KEYLOGIN, false);
                                 Get.to(MyApp());
                               },
                             ),

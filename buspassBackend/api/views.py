@@ -30,9 +30,14 @@ from buspassBackend.settings import BASE_URL
 #37802
 #37249
 #34671
+
+def get_access_from_header(request):
+    return request.headers.get("Authorization",None)[7::]
+
+
 @api_view(['GET'])
 def get_pass_details(request,pk):
-    access_token = request.headers.get("Authorization",None)[7::]
+    access_token = get_access_from_header(request)
     if(check_token(access_token)):
         pass_instance = Pass.objects.filter(bio_id=pk)
         serializer = PassSerializer(pass_instance,many=True)
@@ -42,7 +47,7 @@ def get_pass_details(request,pk):
 
 @api_view(["GET"])
 def get_scan_logs(request,date):
-    access_token = request.headers.get("Authorization",None)[7::]
+    access_token = get_access_from_header(request)
     if(check_token(access_token)):
         scanLog_instance = ScanLog.objects.filter(scan_date=date)
         serializer = ScanLogSerializer(scanLog_instance,many=True)
@@ -52,7 +57,7 @@ def get_scan_logs(request,date):
 
 @api_view(["POST","GET"])
 def post_scan_logs(request,date):
-    access_token = request.headers.get("Authorization",None)[7::]
+    access_token = get_access_from_header(request)
     if(check_token(access_token)):
         serializer = ScanLogSerializer(data=request.data)
         if serializer.is_valid():
@@ -90,61 +95,43 @@ def login(request):
             return Response(data)
 
 @api_view(['POST'])
-def check_access_token(request):
-    if request.method == "POST":
-        try:
-            decoded_data = jwt.decode(jwt=request.data['access'],key=settings.SECRET_KEY,algorithms=['HS256'])
-            return Response(status=200)
-        except:
-            return Response(status=401)
-
-def check_token(access_token):
-    try:
-        decoded_data = jwt.decode(jwt=access_token,key=settings.SECRET_KEY,algorithms=['HS256'])
-        return True
-    except:
-        return False
-
-        
-@api_view(["POST"])
-def check_refresh_token(request):
-    if request.method == "POST":
-        try:
-            decoded_data = jwt.decode(jwt=request.data['refresh'],key=settings.SECRET_KEY,algorithms=['HS256'])
-            return Response(status=200)
-        except:
-            return Response(status=401)
-
-@api_view(['POST'])
 def logout(request):
-    #remove the user
     user_id = get_user_id(request.data['access'])
     print(user_id)
-    x = SessionTable.objects.filter(user_id=user_id).delete()
-    return Response(status=200)
-    # response = requests.post(BASE_URL+"check-access-token/",data=request.data)
-    
-
-@api_view(["POST"])
-def check_token_validity(request):
-    access_token = request.data['access']
-    refresh_token = get_refresh_token_for_access_token(access_token)
-    response1 = requests.post(BASE_URL+"check-access-token/",data={'access' : access_token})
-    response2 = requests.post(BASE_URL+"check-refresh-token/",data={ 'refresh' : refresh_token})
-    accessIsValid = response1.status_code
-    refreshIsValid = response2.status_code 
-    print(refresh_token)
-    print(accessIsValid,refreshIsValid)
-    if(accessIsValid == 200 and refreshIsValid == 200):
+    user_id_entry = SessionTable.objects.filter(user_id=user_id)
+    if user_id_entry.exists():
+        user_id_entry.delete()
         return Response(status=200)
-    elif (accessIsValid != 200 and refreshIsValid == 200):
-        #generate new access token and update it in table
-        response = requests.post(BASE_URL+"token/refresh/",data={"refresh" : refresh_token})
-        print(response.json())
-        return Response(response.json())
-    elif( accessIsValid!= 200 and refreshIsValid != 200):
+    else:
         return Response(status=401)
 
+#check if the access token in the Shared Preference is valid before getting into the app
+@api_view(['POST'])
+def check_access_token(request):
+    if request.method == "POST":
+        if SessionTable.objects.filter(access_token=access_token).exists():
+            try:
+                decoded_data = jwt.decode(jwt=request.data['access'],key=settings.SECRET_KEY,algorithms=['HS256'])
+                return Response(status=200)
+            except:
+                return Response(status=401)
+        else:
+            return Response(status=401)
+
+#to get token from header and check if the token is valid before returning data in reponse
+def check_token(access_token):
+    if SessionTable.objects.filter(access_token=access_token).exists():
+        try:
+            decoded_data = jwt.decode(jwt=access_token,key=settings.SECRET_KEY,algorithms=['HS256'])
+            return True
+        except:
+            return False
+    else:
+        return False
+
+
+
+    
 
 def get_user_id(token):
     decoded_data = jwt.decode(jwt=token,key=settings.SECRET_KEY,algorithms=['HS256'],options={"verify_signature" :False})

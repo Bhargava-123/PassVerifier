@@ -127,7 +127,7 @@ class PostScanLogService {
 
 Future<bool> checkTokenValidity(String? accessToken) async {
   final response = await http.post(Uri.parse("$baseUrl/check-access-token/"),
-      headers: headers, body: {'access': accessToken});
+      headers: headers, body: jsonEncode({'access': accessToken}));
   if (response.statusCode == 200) {
     return true;
   } else {
@@ -141,33 +141,36 @@ class CheckAccessTokenService {
   CheckAccessTokenService();
   Future<bool> checkAccessToken() async {
     SharedPreferences pref = await myprefs;
+    // String = pref.getString("access").toString();
 
-    if (pref.containsKey("access")) {
-      accessToken = pref.getString("access");
-      if (accessToken == null) {
-        accessToken = "";
+    if (pref.getString("access") != null) {
+      // checkTokenValidity()
+      bool isTokenValid = await Future.value(
+          checkTokenValidity(pref.getString('access')!.substring(
+                7,
+              )));
+      if (isTokenValid) {
+        return true;
       } else {
-        accessToken = accessToken!.substring(7, accessToken!.length);
+        return false;
       }
-      debugPrint(accessToken);
-      return true;
     } else {
-      debugPrint("asdfasdsssssssssssssssssss");
-      debugPrint(accessToken);
       return false;
     }
 
     // if (pref.containsKey("access")) {
     //   accessToken = pref.getString("access");
-    //   accessToken = accessToken!.substring(7, accessToken!.length);
-    //   if (accessToken != null && await checkTokenValidity(accessToken)) {
-    //     return true;
+    //   if (accessToken == null) {
+    //     accessToken = "";
     //   } else {
-    //     return true;
+    //     accessToken = accessToken!.substring(7, accessToken!.length);
     //   }
-    //   //INCOMPLETE DIDNT USE API TO CHECK FOR VALIDITY
-    // } else {
+    //   debugPrint(accessToken);
     //   return true;
+    // } else {
+    //   debugPrint("asdfasdsssssssssssssssssss");
+    //   debugPrint(accessToken);
+    //   return false;
     // }
   }
 }

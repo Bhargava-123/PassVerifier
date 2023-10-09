@@ -109,7 +109,7 @@ def logout(request):
 @api_view(['POST'])
 def check_access_token(request):
     if request.method == "POST":
-        if SessionTable.objects.filter(access_token=access_token).exists():
+        if SessionTable.objects.filter(access_token=request.data['access']).exists():
             try:
                 decoded_data = jwt.decode(jwt=request.data['access'],key=settings.SECRET_KEY,algorithms=['HS256'])
                 return Response(status=200)

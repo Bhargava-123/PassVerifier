@@ -265,7 +265,8 @@ class Home extends StatelessWidget {
                       itemBuilder: (context) => [
                             PopupMenuItem(
                               child: const Text("Log Out"),
-                              onTap: () async {
+                              onTap: () {
+                                LogOutService().logOut();
                                 Get.to(MyApp());
                               },
                             ),

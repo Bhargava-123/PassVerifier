@@ -87,18 +87,6 @@ class AuthenticateService {
   }
 }
 
-class LogOutService {
-  String authToken;
-  LogOutService({required this.authToken});
-  void logOut() async {
-    final response = await http.post(Uri.parse('$baseUrl/log'),
-        headers: <String, String>{
-          'Content-Type': 'application/json',
-        },
-        body: jsonEncode(<String, String>{'access': ctrl.authToken}));
-  }
-}
-
 class PostScanLogService {
   String date = DateFormat("d-MM-yyyy").format(DateTime.now());
   String time = DateFormat("HH:mm:ss").format(DateTime.now());
@@ -172,5 +160,17 @@ class CheckAccessTokenService {
     //   debugPrint(accessToken);
     //   return false;
     // }
+  }
+}
+
+class LogOutService {
+  LogOutService();
+  void logOut() async {
+    Future<SharedPreferences> myprefs = SharedPreferences.getInstance();
+    SharedPreferences pref = await myprefs;
+    String? accessToken = pref.getString('access');
+    final response = await http.post(Uri.parse("$baseUrl/logout/"),
+        headers: headers, body: jsonEncode({'access': accessToken}));
+    debugPrint(response.statusCode.toString());
   }
 }

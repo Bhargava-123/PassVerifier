@@ -18,8 +18,6 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
     });
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     //data from qr code
@@ -30,7 +28,7 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
     debugPrint(bioId);
     //API call to get the details of the bioID scanned
     getDetails(bioId);
-   
+
     //API call to post the data to scanLog
 
     return Scaffold(
@@ -67,6 +65,7 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
               //the id is not found
               //post bioid to scanLog once the QR is valid
               // print("hello");
+              debugPrint(snapshot.data.toString());
               PostScanLogService(
                       bioId: bioId,
                       studentName: snapshot.data[0]['student_name'])

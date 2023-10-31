@@ -26,7 +26,8 @@ class PassService {
           'Authorization': ctrl.authToken
         });
     // debugPrint(response.body.runtimeType.toString());
-    if (response.statusCode == 200) {
+    if (response.statusCode != 200) {
+
       return Future.value([
         {'Error': "False"}
       ]);

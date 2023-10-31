@@ -125,7 +125,7 @@ class _FormWidgetState extends State<FormWidget> {
       children: [
         //username TextField
         CustomTextField(
-          hintTextValue: "Username",
+          hintTextValue: "Email Id",
           textEditingController: usernameController,
         ),
         const SizedBox(

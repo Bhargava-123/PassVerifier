@@ -14,9 +14,11 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
   void getDetails(String bioId) {
     setState(() {
       _passDetails = Future.value(PassService(bioId: bioId).getDetails());
-      // print(PassService(bioId: bioId).getDetails());
+      // debugPrint(PassService(bioId: bioId).getDetails().toString());
     });
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -25,8 +27,10 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
         <String, dynamic>{}) as Map;
 
     String bioId = arguments['data'].toString();
+    debugPrint(bioId);
     //API call to get the details of the bioID scanned
     getDetails(bioId);
+   
     //API call to post the data to scanLog
 
     return Scaffold(
@@ -44,7 +48,6 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
       body: FutureBuilder(
           future: _passDetails,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-            //The QR Code is invalid
             if (snapshot.data == '[]') {
               return const Center(
                 child: Column(
@@ -64,7 +67,10 @@ class _PassDetailsScreenState extends State<PassDetailsScreen> {
               //the id is not found
               //post bioid to scanLog once the QR is valid
               // print("hello");
-              PostScanLogService(bioId: bioId,studentName: snapshot.data[0]['student_name']).postScanLog();
+              PostScanLogService(
+                      bioId: bioId,
+                      studentName: snapshot.data[0]['student_name'])
+                  .postScanLog();
 
               return ListView.builder(
                 itemCount: snapshot.data!.length,

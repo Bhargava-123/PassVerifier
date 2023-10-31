@@ -14,7 +14,7 @@ void main() {
   runApp(GetMaterialApp(
     debugShowCheckedModeBanner: false,
     theme: ThemeData(fontFamily: 'Montserrat'),
-    title: "Named Routes Demo",
+    title: "Pass Verifier",
     initialRoute: Routes.SplashScreen,
     getPages: getPages,
   ));
@@ -266,8 +266,9 @@ class Home extends StatelessWidget {
                             PopupMenuItem(
                               child: const Text("Log Out"),
                               onTap: () {
+                                //Log out User
                                 LogOutService().logOut();
-                                Get.to(MyApp());
+                           
                               },
                             ),
                           ])

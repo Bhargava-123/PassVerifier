@@ -37,7 +37,10 @@ def get_access_from_header(request):
 
 @api_view(['GET'])
 def get_pass_details(request,pk):
-    access_token = get_access_from_header(request)
+    try:
+        access_token = get_access_from_header(request)
+    except:
+        return Response(status=401)
     if(check_token(access_token)):
         pass_instance = Pass.objects.filter(bio_id=pk)
         serializer = PassSerializer(pass_instance,many=True)

@@ -18,6 +18,7 @@ class PassService {
   String bioId;
   PassService({required this.bioId});
   Future<List<dynamic>> getDetails() async {
+    debugPrint(ctrl.authToken);
     final response = await http.get(
         Uri.parse("$baseUrl/get-pass-details/$bioId/"),
         headers: <String, String>{
@@ -38,6 +39,7 @@ class getScanLogService {
   String date;
   getScanLogService({required this.date});
   Future<List<dynamic>> getDetails() async {
+    debugPrint(ctrl.authToken);
     final response = await http.get(Uri.parse("$baseUrl/get-scan-log/$date/"),
         headers: <String, String>{
           'Content-Type': 'application/json',
@@ -169,8 +171,10 @@ class LogOutService {
     Future<SharedPreferences> myprefs = SharedPreferences.getInstance();
     SharedPreferences pref = await myprefs;
     String? accessToken = pref.getString('access');
+    accessToken = accessToken!.substring(7);
     final response = await http.post(Uri.parse("$baseUrl/logout/"),
         headers: headers, body: jsonEncode({'access': accessToken}));
     debugPrint(response.statusCode.toString());
+    Get.to(MyApp());
   }
 }

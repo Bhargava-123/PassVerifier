@@ -32,6 +32,7 @@ class _PassDetailsState extends State<PassDetails> {
       body: FutureBuilder(
           future: _passDetails,
           builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+            
             if (snapshot.hasData) {
               return ListView.builder(
                 itemCount: snapshot.data!.length,

@@ -1,15 +1,13 @@
-
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 class Scanner extends StatelessWidget {
   Scanner({super.key});
   final MobileScannerController cameraController = MobileScannerController();
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text('Mobile Scanner'),
@@ -53,9 +51,15 @@ class Scanner extends StatelessWidget {
         controller: cameraController,
         onDetect: (capture) {
           final List<Barcode> barcodes = capture.barcodes;
-           final data = barcodes[0].rawValue.toString();
+          final data = barcodes[0].rawValue.toString();
           //navigation to the pass details screen
-          Navigator.pushNamed(context, '/passDetails',arguments: {'data' : data});
+          var snackBar = SnackBar(
+            content: Text(data.toString()),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+          
+          Navigator.pushNamed(context, '/passDetails',
+              arguments: {'data': data});
           MobileScannerController().dispose();
         },
       ),

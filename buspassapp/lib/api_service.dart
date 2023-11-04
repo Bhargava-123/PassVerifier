@@ -18,7 +18,7 @@ class PassService {
   String bioId;
   PassService({required this.bioId});
   Future<List<dynamic>> getDetails() async {
-    debugPrint(ctrl.authToken);
+    // debugPrint(ctrl.authToken);
     final response = await http.get(
         Uri.parse("$baseUrl/get-pass-details/$bioId/"),
         headers: <String, String>{
@@ -27,7 +27,6 @@ class PassService {
         });
     // debugPrint(response.body.runtimeType.toString());
     if (response.statusCode != 200) {
-
       return Future.value([
         {'Error': "False"}
       ]);
@@ -40,7 +39,7 @@ class getScanLogService {
   String date;
   getScanLogService({required this.date});
   Future<List<dynamic>> getDetails() async {
-    debugPrint(ctrl.authToken);
+    // debugPrint(ctrl.authToken);
     final response = await http.get(Uri.parse("$baseUrl/get-scan-log/$date/"),
         headers: <String, String>{
           'Content-Type': 'application/json',
@@ -73,9 +72,10 @@ class AuthenticateService {
     );
 
     //after submitting response
-    final responseJson = jsonDecode(response.body);
+
     final Future<SharedPreferences> _prefs = SharedPreferences.getInstance();
     if (response.statusCode == 200) {
+      final responseJson = jsonDecode(response.body);
       // successSnack("Successful Login","");
       // debugPrint(responseJson['access']);
       controller.setToken(responseJson['access_token']);
